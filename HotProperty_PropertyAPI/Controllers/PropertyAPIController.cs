@@ -1,21 +1,25 @@
-﻿using HotProperty_PropertyAPI.Models;
+﻿using HotProperty_PropertyAPI.Data;
+using HotProperty_PropertyAPI.Models;
+using HotProperty_PropertyAPI.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotProperty_PropertyAPI.Controllers
 {
     [ApiController]
     [Route("api/PropertyAPI")]
+    //[Route("api/[controller]") this will use the controller name in the route
     public class PropertyAPIController : ControllerBase
     {
         [HttpGet]
-        public IEnumerable<Property> GetProperties()
+        public IEnumerable<PropertyDTO> GetProperties()
         {
-            return new List<Property>()
-            {
-                new Property{Id=1, Name = "34 Arnold St"},
-                new Property{Id=2, Name = "14 Davey St"}
-            };
+            return PropertyStore.propertyList;
 
+        }
+        [HttpGet("{id:int}")]
+        public PropertyDTO GetProperty(int id)
+        {
+            return PropertyStore.propertyList.FirstOrDefault(u => u.Id == id);
         }
     }
 }
