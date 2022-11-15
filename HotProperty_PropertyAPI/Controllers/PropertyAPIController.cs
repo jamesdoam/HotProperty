@@ -17,7 +17,7 @@ namespace HotProperty_PropertyAPI.Controllers
             return Ok(PropertyStore.propertyList);
 
         }
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}",Name = "GetProperty")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -38,11 +38,16 @@ namespace HotProperty_PropertyAPI.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<PropertyDTO> CreateProperty([FromBody]PropertyDTO propertyDTO)
-        {
+        {   //check if the property name is already exist in the propertyList
+            if (PropertyStore.propertyList.FirstOrDefault(u => u.Name.ToLower() == propertyDTO.Name.ToLower()) != null)
+            {
+                ModelState.AddModelError("CustomError", "Property name already exists!");
+                return BadRequest(ModelState);
+            }
             if (propertyDTO == null)
             { 
                 return BadRequest(propertyDTO); 
@@ -55,7 +60,7 @@ namespace HotProperty_PropertyAPI.Controllers
             propertyDTO.Id = PropertyStore.propertyList.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
             PropertyStore.propertyList.Add(propertyDTO);
 
-            return Ok(propertyDTO);
+            return CreatedAtRoute("GetProperty", new { id = propertyDTO.Id }, propertyDTO);
         }
     }
 }
