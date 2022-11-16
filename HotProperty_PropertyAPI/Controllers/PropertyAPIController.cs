@@ -17,7 +17,7 @@ namespace HotProperty_PropertyAPI.Controllers
             return Ok(PropertyStore.propertyList);
 
         }
-        [HttpGet("{id:int}",Name = "GetProperty")]
+        [HttpGet("{id:int}", Name = "GetProperty")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -28,8 +28,8 @@ namespace HotProperty_PropertyAPI.Controllers
                 return BadRequest();
             }
 
-            var property = PropertyStore.propertyList.FirstOrDefault(u => u.Id == id); 
-            if (property==null)
+            var property = PropertyStore.propertyList.FirstOrDefault(u => u.Id == id);
+            if (property == null)
             {
                 return NotFound();
             }
@@ -41,7 +41,7 @@ namespace HotProperty_PropertyAPI.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<PropertyDTO> CreateProperty([FromBody]PropertyDTO propertyDTO)
+        public ActionResult<PropertyDTO> CreateProperty([FromBody] PropertyDTO propertyDTO)
         {   //check if the property name is already exist in the propertyList
             if (PropertyStore.propertyList.FirstOrDefault(u => u.Name.ToLower() == propertyDTO.Name.ToLower()) != null)
             {
@@ -49,8 +49,8 @@ namespace HotProperty_PropertyAPI.Controllers
                 return BadRequest(ModelState);
             }
             if (propertyDTO == null)
-            { 
-                return BadRequest(propertyDTO); 
+            {
+                return BadRequest(propertyDTO);
             }
             if (propertyDTO.Id > 0)
             {
@@ -61,6 +61,49 @@ namespace HotProperty_PropertyAPI.Controllers
             PropertyStore.propertyList.Add(propertyDTO);
 
             return CreatedAtRoute("GetProperty", new { id = propertyDTO.Id }, propertyDTO);
+        }
+
+        [HttpDelete("{id:int}", Name = "DeleteProperty")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public IActionResult DeleteProperty(int id)
+        {
+            if (id == 0) //return bad request if id == 0
+            {
+                return BadRequest();
+            }
+            // if id is not 0, get the property from data store
+            var property = PropertyStore.propertyList.FirstOrDefault(u => u.Id == id);
+
+            if (property == null) //if property is not (not in the list), return not found
+            {
+                return NotFound();
+            }
+            // if property is in the list, remove it
+
+            PropertyStore.propertyList.Remove(property);
+            return NoContent(); //delete request return no content
+
+        }
+
+        [HttpPut("{id:int}", Name = "UpdateProperty")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public IActionResult UpdateProperty(int id, [FromBody]PropertyDTO propertyDTO)
+        {
+            //if not valid, return bad request
+            if (id != propertyDTO.Id || propertyDTO == null)
+            {
+                return BadRequest();
+            }
+            //find the property in the list and change its properties according to the input DTO
+            var property = PropertyStore.propertyList.FirstOrDefault(u => u.Id == id);
+
+            property.Name = propertyDTO.Name;
+            property.NoBedroom = propertyDTO.NoBedroom;
+
+            return NoContent();
         }
     }
 }
