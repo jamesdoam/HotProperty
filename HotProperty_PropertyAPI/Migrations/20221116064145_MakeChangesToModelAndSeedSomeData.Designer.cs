@@ -4,6 +4,7 @@ using HotProperty_PropertyAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotProperty_PropertyAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221116064145_MakeChangesToModelAndSeedSomeData")]
+    partial class MakeChangesToModelAndSeedSomeData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +32,7 @@ namespace HotProperty_PropertyAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("Area")
+                    b.Property<int>("Area")
                         .HasColumnType("int");
 
                     b.Property<int>("AskingPrice")
@@ -50,10 +52,11 @@ namespace HotProperty_PropertyAPI.Migrations
                     b.Property<int>("NoBedroom")
                         .HasColumnType("int");
 
-                    b.Property<int?>("NoToilet")
+                    b.Property<int>("NoToilet")
                         .HasColumnType("int");
 
                     b.Property<string>("PostCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("State")
@@ -61,6 +64,7 @@ namespace HotProperty_PropertyAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Suburb")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedDate")
@@ -76,7 +80,7 @@ namespace HotProperty_PropertyAPI.Migrations
                             Id = 1,
                             Area = 591,
                             AskingPrice = 980000,
-                            CreatedDate = new DateTime(2022, 11, 16, 17, 51, 35, 536, DateTimeKind.Local).AddTicks(5867),
+                            CreatedDate = new DateTime(2022, 11, 16, 17, 41, 44, 884, DateTimeKind.Local).AddTicks(8609),
                             ImageUrl = "https://dotnetmasteryimages.blob.core.windows.net/bluevillaimages/villa3.jpg",
                             Name = "11 James St",
                             NoBedroom = 3,
@@ -91,7 +95,7 @@ namespace HotProperty_PropertyAPI.Migrations
                             Id = 2,
                             Area = 750,
                             AskingPrice = 1080000,
-                            CreatedDate = new DateTime(2022, 11, 16, 17, 51, 35, 536, DateTimeKind.Local).AddTicks(5870),
+                            CreatedDate = new DateTime(2022, 11, 16, 17, 41, 44, 884, DateTimeKind.Local).AddTicks(8614),
                             ImageUrl = "https://dotnetmasteryimages.blob.core.windows.net/bluevillaimages/villa3.jpg",
                             Name = "16 Lily Crt",
                             NoBedroom = 4,
@@ -106,7 +110,7 @@ namespace HotProperty_PropertyAPI.Migrations
                             Id = 3,
                             Area = 720,
                             AskingPrice = 688000,
-                            CreatedDate = new DateTime(2022, 11, 16, 17, 51, 35, 536, DateTimeKind.Local).AddTicks(5874),
+                            CreatedDate = new DateTime(2022, 11, 16, 17, 41, 44, 884, DateTimeKind.Local).AddTicks(8617),
                             ImageUrl = "https://dotnetmasteryimages.blob.core.windows.net/bluevillaimages/villa3.jpg",
                             Name = "177 Wonderwomen Prd",
                             NoBedroom = 4,

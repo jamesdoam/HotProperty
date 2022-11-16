@@ -14,10 +14,12 @@ namespace HotProperty_PropertyAPI.Controllers
     public class PropertyAPIController : ControllerBase
     {
         private readonly ILogging _logger;
+        private readonly ApplicationDbContext _db;
 
-        public PropertyAPIController(ILogging logger)
+        public PropertyAPIController(ILogging logger, ApplicationDbContext db)
         {
             _logger = logger;
+            _db = db;
         }
 
         [HttpGet]
@@ -25,7 +27,7 @@ namespace HotProperty_PropertyAPI.Controllers
         public ActionResult<IEnumerable<PropertyDTO>> GetProperties()
         {
             _logger.Log("LogInfo: Getting all properties",""); //2 arguments, first is message, second is type = "" blank
-            return Ok(PropertyStore.propertyList);
+            return Ok(_db.Properties.ToList());
 
         }
 
@@ -41,7 +43,7 @@ namespace HotProperty_PropertyAPI.Controllers
                 return BadRequest();
             }
 
-            var property = PropertyStore.propertyList.FirstOrDefault(u => u.Id == id);
+            var property = _db.Properties.FirstOrDefault(u => u.Id == id);
             if (property == null)
             {
                 _logger.Log("LogError: Property not found", "error");
@@ -57,7 +59,7 @@ namespace HotProperty_PropertyAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<PropertyDTO> CreateProperty([FromBody] PropertyDTO propertyDTO)
         {   //check if the property name is already exist in the propertyList
-            if (PropertyStore.propertyList.FirstOrDefault(u => u.Name.ToLower() == propertyDTO.Name.ToLower()) != null)
+            if (_db.Properties.FirstOrDefault(u => u.Name.ToLower() == propertyDTO.Name.ToLower()) != null)
             {
                 _logger.Log("LogError: Create Property with duplicated name", "error");
                 ModelState.AddModelError("CustomError", "Property name already exists!");
@@ -71,9 +73,18 @@ namespace HotProperty_PropertyAPI.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
-            //find the obj with largest Id and plus one for the new obj
-            propertyDTO.Id = PropertyStore.propertyList.OrderByDescending(u => u.Id).FirstOrDefault().Id + 1;
-            PropertyStore.propertyList.Add(propertyDTO);
+            //create a new Property obj from PropertyDTO and save it to localdb
+            Property propertyObj = new()
+            {
+                Id = propertyDTO.Id,
+                Name = propertyDTO.Name,
+                State = propertyDTO.State,
+                AskingPrice = propertyDTO.AskingPrice,
+                NoBedroom = propertyDTO.NoBedroom,
+                ImageUrl = propertyDTO.ImageUrl
+            };
+            _db.Properties.Add(propertyObj);
+            _db.SaveChanges();
 
             return CreatedAtRoute("GetProperty", new { id = propertyDTO.Id }, propertyDTO);
         }
@@ -89,7 +100,7 @@ namespace HotProperty_PropertyAPI.Controllers
                 return BadRequest();
             }
             // if id is not 0, get the property from data store
-            var property = PropertyStore.propertyList.FirstOrDefault(u => u.Id == id);
+            var property = _db.Properties.FirstOrDefault(u => u.Id == id);
 
             if (property == null) //if property is not (not in the list), return not found
             {
@@ -97,7 +108,8 @@ namespace HotProperty_PropertyAPI.Controllers
             }
             // if property is in the list, remove it
 
-            PropertyStore.propertyList.Remove(property);
+            _db.Properties.Remove(property);
+            _db.SaveChanges();
             return NoContent(); //delete request return no content
 
         }
@@ -112,12 +124,20 @@ namespace HotProperty_PropertyAPI.Controllers
             {
                 return BadRequest();
             }
-            //find the property in the list and change its properties according to the input DTO
-            var property = PropertyStore.propertyList.FirstOrDefault(u => u.Id == id);
 
-            property.Name = propertyDTO.Name;
-            property.NoBedroom = propertyDTO.NoBedroom;
+            //create a new property object from the propertyDto and update it to the database
+            Property propertyObj = new()
+            {
+                Id = propertyDTO.Id,
+                Name = propertyDTO.Name,
+                State = propertyDTO.State,
+                AskingPrice = propertyDTO.AskingPrice,
+                NoBedroom = propertyDTO.NoBedroom,
+                ImageUrl = propertyDTO.ImageUrl
+            };
 
+            _db.Properties.Update(propertyObj);
+            _db.SaveChanges();
             return NoContent();
         }
 
@@ -130,18 +150,45 @@ namespace HotProperty_PropertyAPI.Controllers
             {
                 return BadRequest();
             }
-
-            var property = PropertyStore.propertyList.FirstOrDefault(u => u.Id == id);
-            if(property == null)
+            //retrive the property from database from the id provided
+            //if not null, create a new propertyDTO from the real object
+            var propertyObj = _db.Properties.FirstOrDefault(u => u.Id == id);
+            if (propertyObj == null)
             {
                 return BadRequest();
             }
 
-            patchDTO.ApplyTo(property, ModelState);
+            PropertyDTO propertyDTO = new()
+            {
+                Id = propertyObj.Id,
+                Name = propertyObj.Name,
+                State = propertyObj.State,
+                AskingPrice = propertyObj.AskingPrice,
+                NoBedroom = propertyObj.NoBedroom,
+                ImageUrl = propertyObj.ImageUrl
+            };
+
+            //then apply patchDTO to the new DTO object
+            patchDTO.ApplyTo(propertyDTO, ModelState);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            //if valid, create a new property obj from the patched DTO
+            //then update the database and finally save!
+            Property newPropertyObj = new ()
+            {
+                Id = propertyDTO.Id,
+                Name = propertyDTO.Name,
+                State = propertyDTO.State,
+                AskingPrice = propertyDTO.AskingPrice,
+                NoBedroom = propertyDTO.NoBedroom,
+                ImageUrl = propertyDTO.ImageUrl
+            };
+
+            _db.Properties.Update(newPropertyObj);
+            _db.SaveChanges();
             return NoContent();
         }
     }
