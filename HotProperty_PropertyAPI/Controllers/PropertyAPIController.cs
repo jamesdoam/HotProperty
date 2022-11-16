@@ -1,4 +1,5 @@
 ﻿using HotProperty_PropertyAPI.Data;
+using HotProperty_PropertyAPI.Logging;
 using HotProperty_PropertyAPI.Models;
 using HotProperty_PropertyAPI.Models.Dto;
 using Microsoft.AspNetCore.JsonPatch;
@@ -12,13 +13,22 @@ namespace HotProperty_PropertyAPI.Controllers
     //[Route("api/[controller]") this will use the controller name in the route
     public class PropertyAPIController : ControllerBase
     {
+        private readonly ILogging _logger;
+
+        public PropertyAPIController(ILogging logger)
+        {
+            _logger = logger;
+        }
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<PropertyDTO>> GetProperties()
         {
+            _logger.Log("LogInfo: Getting all properties",""); //2 arguments, first is message, second is type = "" blank
             return Ok(PropertyStore.propertyList);
 
         }
+
         [HttpGet("{id:int}", Name = "GetProperty")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -27,12 +37,14 @@ namespace HotProperty_PropertyAPI.Controllers
         {
             if (id == 0)
             {
+                _logger.Log("LogError: Get Property with Id = " + id, "error");
                 return BadRequest();
             }
 
             var property = PropertyStore.propertyList.FirstOrDefault(u => u.Id == id);
             if (property == null)
             {
+                _logger.Log("LogError: Property not found", "error");
                 return NotFound();
             }
 
@@ -47,6 +59,7 @@ namespace HotProperty_PropertyAPI.Controllers
         {   //check if the property name is already exist in the propertyList
             if (PropertyStore.propertyList.FirstOrDefault(u => u.Name.ToLower() == propertyDTO.Name.ToLower()) != null)
             {
+                _logger.Log("LogError: Create Property with duplicated name", "error");
                 ModelState.AddModelError("CustomError", "Property name already exists!");
                 return BadRequest(ModelState);
             }
