@@ -9,6 +9,10 @@ namespace HotProperty_PropertyAPI.Models.Dto
         [Required]
         [MaxLength(30)]
         public string Name { get; set; }
+        public int AskingPrice { get; set; }
         public int NoBedroom { get; set; }
+        public string State { get; set; }
     }
 }
+
+
