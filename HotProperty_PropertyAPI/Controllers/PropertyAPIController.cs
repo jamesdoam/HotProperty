@@ -4,6 +4,7 @@ using HotProperty_PropertyAPI.Models;
 using HotProperty_PropertyAPI.Models.Dto;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 
 namespace HotProperty_PropertyAPI.Controllers
@@ -24,10 +25,10 @@ namespace HotProperty_PropertyAPI.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<PropertyDTO>> GetProperties()
+        public async Task<ActionResult<IEnumerable<PropertyDTO>>> GetProperties()
         {
             _logger.Log("LogInfo: Getting all properties",""); //2 arguments, first is message, second is type = "" blank
-            return Ok(_db.Properties.ToList());
+            return Ok(await _db.Properties.ToListAsync());
 
         }
 
@@ -35,7 +36,7 @@ namespace HotProperty_PropertyAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<PropertyDTO> GetProperty(int id)
+        public async Task<ActionResult<PropertyDTO>> GetProperty(int id)
         {
             if (id == 0)
             {
@@ -43,7 +44,7 @@ namespace HotProperty_PropertyAPI.Controllers
                 return BadRequest();
             }
 
-            var property = _db.Properties.FirstOrDefault(u => u.Id == id);
+            var property = await _db.Properties.FirstOrDefaultAsync(u => u.Id == id);
             if (property == null)
             {
                 _logger.Log("LogError: Property not found", "error");
@@ -57,9 +58,9 @@ namespace HotProperty_PropertyAPI.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<PropertyDTO> CreateProperty([FromBody] PropertyDTO propertyDTO)
+        public async Task<ActionResult<PropertyDTO>> CreateProperty([FromBody] PropertyCreateDTO propertyDTO)
         {   //check if the property name is already exist in the propertyList
-            if (_db.Properties.FirstOrDefault(u => u.Name.ToLower() == propertyDTO.Name.ToLower()) != null)
+            if (await _db.Properties.FirstOrDefaultAsync(u => u.Name.ToLower() == propertyDTO.Name.ToLower()) != null)
             {
                 _logger.Log("LogError: Create Property with duplicated name", "error");
                 ModelState.AddModelError("CustomError", "Property name already exists!");
@@ -69,38 +70,38 @@ namespace HotProperty_PropertyAPI.Controllers
             {
                 return BadRequest(propertyDTO);
             }
-            if (propertyDTO.Id > 0)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            //No need to check Id because CreateDTO doesn't have Id field
+            //if (propertyDTO.Id > 0)
+            //{
+            //    return StatusCode(StatusCodes.Status500InternalServerError);
+            //}
             //create a new Property obj from PropertyDTO and save it to localdb
             Property propertyObj = new()
             {
-                Id = propertyDTO.Id,
                 Name = propertyDTO.Name,
                 State = propertyDTO.State,
                 AskingPrice = propertyDTO.AskingPrice,
                 NoBedroom = propertyDTO.NoBedroom,
                 ImageUrl = propertyDTO.ImageUrl
             };
-            _db.Properties.Add(propertyObj);
-            _db.SaveChanges();
+            await _db.Properties.AddAsync(propertyObj);
+            await _db.SaveChangesAsync();
 
-            return CreatedAtRoute("GetProperty", new { id = propertyDTO.Id }, propertyDTO);
+            return CreatedAtRoute("GetProperty", new { id = propertyObj.Id }, propertyObj);
         }
 
         [HttpDelete("{id:int}", Name = "DeleteProperty")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public IActionResult DeleteProperty(int id)
+        public async Task<IActionResult> DeleteProperty(int id)
         {
             if (id == 0) //return bad request if id == 0
             {
                 return BadRequest();
             }
             // if id is not 0, get the property from data store
-            var property = _db.Properties.FirstOrDefault(u => u.Id == id);
+            var property = await _db.Properties.FirstOrDefaultAsync(u => u.Id == id);
 
             if (property == null) //if property is not (not in the list), return not found
             {
@@ -109,7 +110,7 @@ namespace HotProperty_PropertyAPI.Controllers
             // if property is in the list, remove it
 
             _db.Properties.Remove(property);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return NoContent(); //delete request return no content
 
         }
@@ -117,7 +118,7 @@ namespace HotProperty_PropertyAPI.Controllers
         [HttpPut("{id:int}", Name = "UpdateProperty")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public IActionResult UpdateProperty(int id, [FromBody]PropertyDTO propertyDTO)
+        public async Task<IActionResult> UpdateProperty(int id, [FromBody]PropertyUpdateDTO propertyDTO)
         {
             //if not valid, return bad request
             if (id != propertyDTO.Id || propertyDTO == null)
@@ -137,14 +138,14 @@ namespace HotProperty_PropertyAPI.Controllers
             };
 
             _db.Properties.Update(propertyObj);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return NoContent();
         }
 
         [HttpPatch("{id:int}", Name = "UpdatePartialProperty")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public IActionResult UpdatePartialProperty(int id, JsonPatchDocument<PropertyDTO> patchDTO)
+        public async Task<IActionResult> UpdatePartialProperty(int id, JsonPatchDocument<PropertyUpdateDTO> patchDTO)
         {
             if(patchDTO == null || id == 0)
             {
@@ -152,9 +153,9 @@ namespace HotProperty_PropertyAPI.Controllers
             }
             //retrive the property from database from the id provided
             //if not null, create a new propertyDTO from the real object
-            var propertyObj = _db.Properties.FirstOrDefault(u => u.Id == id);
+            var propertyObj = await _db.Properties.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
 
-            PropertyDTO propertyDTO = new()
+            PropertyUpdateDTO propertyDTO = new()
             {
                 Id = propertyObj.Id,
                 Name = propertyObj.Name,
@@ -174,26 +175,26 @@ namespace HotProperty_PropertyAPI.Controllers
 
             //if valid, create a new property obj from the patched DTO
             //then update the database and finally save!
-            //Property newPropertyObj = new Property()
-            //{
-            //    Id = propertyDTO.Id,
-            //    Name = propertyDTO.Name,
-            //    State = propertyDTO.State,
-            //    AskingPrice = propertyDTO.AskingPrice,
-            //    NoBedroom = propertyDTO.NoBedroom,
-            //    ImageUrl = propertyDTO.ImageUrl
-            //};
+            Property newPropertyObj = new Property()
+            {
+                Id = propertyDTO.Id,
+                Name = propertyDTO.Name,
+                State = propertyDTO.State,
+                AskingPrice = propertyDTO.AskingPrice,
+                NoBedroom = propertyDTO.NoBedroom,
+                ImageUrl = propertyDTO.ImageUrl
+            };
 
-            propertyObj.Id = propertyDTO.Id;
-            propertyObj.Name = propertyDTO.Name;
-            propertyObj.State = propertyDTO.State;
-            propertyObj.AskingPrice = propertyDTO.AskingPrice;
-            propertyObj.NoBedroom = propertyDTO.NoBedroom;
-            propertyObj.ImageUrl= propertyDTO.ImageUrl;
+            //propertyObj.Id = propertyDTO.Id;
+            //propertyObj.Name = propertyDTO.Name;
+            //propertyObj.State = propertyDTO.State;
+            //propertyObj.AskingPrice = propertyDTO.AskingPrice;
+            //propertyObj.NoBedroom = propertyDTO.NoBedroom;
+            //propertyObj.ImageUrl= propertyDTO.ImageUrl;
 
 
-            _db.Properties.Update(propertyObj);
-            _db.SaveChanges();
+            _db.Properties.Update(newPropertyObj);
+            await _db.SaveChangesAsync();
 
             if (!ModelState.IsValid)
             {
