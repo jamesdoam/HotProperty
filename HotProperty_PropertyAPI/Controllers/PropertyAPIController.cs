@@ -1,7 +1,9 @@
 ﻿using HotProperty_PropertyAPI.Data;
 using HotProperty_PropertyAPI.Models;
 using HotProperty_PropertyAPI.Models.Dto;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.CompilerServices;
 
 namespace HotProperty_PropertyAPI.Controllers
 {
@@ -103,6 +105,30 @@ namespace HotProperty_PropertyAPI.Controllers
             property.Name = propertyDTO.Name;
             property.NoBedroom = propertyDTO.NoBedroom;
 
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}", Name = "UpdatePartialProperty")]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public IActionResult UpdatePartialProperty(int id, JsonPatchDocument<PropertyDTO> patchDTO)
+        {
+            if(patchDTO == null || id == 0)
+            {
+                return BadRequest();
+            }
+
+            var property = PropertyStore.propertyList.FirstOrDefault(u => u.Id == id);
+            if(property == null)
+            {
+                return BadRequest();
+            }
+
+            patchDTO.ApplyTo(property, ModelState);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             return NoContent();
         }
     }
