@@ -153,10 +153,6 @@ namespace HotProperty_PropertyAPI.Controllers
             //retrive the property from database from the id provided
             //if not null, create a new propertyDTO from the real object
             var propertyObj = _db.Properties.FirstOrDefault(u => u.Id == id);
-            if (propertyObj == null)
-            {
-                return BadRequest();
-            }
 
             PropertyDTO propertyDTO = new()
             {
@@ -168,27 +164,42 @@ namespace HotProperty_PropertyAPI.Controllers
                 ImageUrl = propertyObj.ImageUrl
             };
 
+            if (propertyObj == null)
+            {
+                return BadRequest();
+            }
+
             //then apply patchDTO to the new DTO object
             patchDTO.ApplyTo(propertyDTO, ModelState);
+
+            //if valid, create a new property obj from the patched DTO
+            //then update the database and finally save!
+            //Property newPropertyObj = new Property()
+            //{
+            //    Id = propertyDTO.Id,
+            //    Name = propertyDTO.Name,
+            //    State = propertyDTO.State,
+            //    AskingPrice = propertyDTO.AskingPrice,
+            //    NoBedroom = propertyDTO.NoBedroom,
+            //    ImageUrl = propertyDTO.ImageUrl
+            //};
+
+            propertyObj.Id = propertyDTO.Id;
+            propertyObj.Name = propertyDTO.Name;
+            propertyObj.State = propertyDTO.State;
+            propertyObj.AskingPrice = propertyDTO.AskingPrice;
+            propertyObj.NoBedroom = propertyDTO.NoBedroom;
+            propertyObj.ImageUrl= propertyDTO.ImageUrl;
+
+
+            _db.Properties.Update(propertyObj);
+            _db.SaveChanges();
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            //if valid, create a new property obj from the patched DTO
-            //then update the database and finally save!
-            Property newPropertyObj = new ()
-            {
-                Id = propertyDTO.Id,
-                Name = propertyDTO.Name,
-                State = propertyDTO.State,
-                AskingPrice = propertyDTO.AskingPrice,
-                NoBedroom = propertyDTO.NoBedroom,
-                ImageUrl = propertyDTO.ImageUrl
-            };
-
-            _db.Properties.Update(newPropertyObj);
-            _db.SaveChanges();
             return NoContent();
         }
     }
