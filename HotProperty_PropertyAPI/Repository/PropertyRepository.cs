@@ -14,13 +14,13 @@ namespace HotProperty_PropertyAPI.Repository
             _db = db;
         }
 
-        public async Task Create(Property entity)
+        public async Task CreateAsync(Property entity)
         {
             await _db.Properties.AddAsync(entity);
-            await Save();
+            await SaveAsync();
         }
 
-        public async Task<Property> Get(Expression<Func<Property, bool>> filter = null, bool tracked = true)
+        public async Task<Property> GetAsync(Expression<Func<Property, bool>> filter = null, bool tracked = true)
         {
             IQueryable<Property> query = _db.Properties;
             if(!tracked)
@@ -34,7 +34,7 @@ namespace HotProperty_PropertyAPI.Repository
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<List<Property>> GetAll(Expression<Func<Property, bool>> filter = null)
+        public async Task<List<Property>> GetAllAsync(Expression<Func<Property, bool>> filter = null)
         {
             IQueryable<Property> query = _db.Properties;
             if (filter != null)
@@ -44,15 +44,21 @@ namespace HotProperty_PropertyAPI.Repository
             return await query.ToListAsync();
         }
 
-        public async Task Remove(Property entity)
+        public async Task RemoveAsync(Property entity)
         {
             _db.Properties.Remove(entity);
-            await Save();
+            await SaveAsync();
         }
 
-        public async Task Save()
+        public async Task SaveAsync()
         {
             await _db.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(Property entity)
+        {
+            _db.Properties.Update(entity);
+            await SaveAsync();
         }
     }
 }

@@ -3,6 +3,7 @@ using HotProperty_PropertyAPI.Data;
 using HotProperty_PropertyAPI.Logging;
 using HotProperty_PropertyAPI.Models;
 using HotProperty_PropertyAPI.Models.Dto;
+using HotProperty_PropertyAPI.Repository.IRepository;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +17,13 @@ namespace HotProperty_PropertyAPI.Controllers
     public class PropertyAPIController : ControllerBase
     {
         private readonly ILogging _logger;
-        private readonly ApplicationDbContext _db;
+        private readonly IPropertyRepository _dbProperty;
         private readonly IMapper _mapper;
 
-        public PropertyAPIController(ILogging logger, ApplicationDbContext db, IMapper mapper)
+        public PropertyAPIController(ILogging logger, IPropertyRepository dbProperty, IMapper mapper)
         {
             _logger = logger;
-            _db = db;
+            _dbProperty = dbProperty;
             _mapper = mapper;
         }
 
@@ -33,7 +34,7 @@ namespace HotProperty_PropertyAPI.Controllers
         {
             _logger.Log("LogInfo: Getting all properties",""); //2 arguments, first is message, second is type = "" blank
             //get a list of all properties in the DB and then map them to DTOs and return
-            IEnumerable<Property> propertyList = await _db.Properties.ToListAsync();
+            IEnumerable<Property> propertyList = await _dbProperty.GetAllAsync();
             return Ok(_mapper.Map<List<PropertyDTO>>(propertyList));
 
         }
@@ -51,7 +52,7 @@ namespace HotProperty_PropertyAPI.Controllers
                 return BadRequest();
             }
 
-            var property = await _db.Properties.FirstOrDefaultAsync(u => u.Id == id);
+            var property = await _dbProperty.GetAsync(u => u.Id == id);
             if (property == null)
             {
                 _logger.Log("LogError: Property not found", "error");
@@ -68,7 +69,7 @@ namespace HotProperty_PropertyAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<PropertyDTO>> CreateProperty([FromBody] PropertyCreateDTO createDTO)
         {   //check if the property name is already exist in the propertyList
-            if (await _db.Properties.FirstOrDefaultAsync(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null)
+            if (await _dbProperty.GetAsync(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null)
             {
                 _logger.Log("LogError: Create Property with duplicated name", "error");
                 ModelState.AddModelError("CustomError", "Property name already exists!");
@@ -81,9 +82,8 @@ namespace HotProperty_PropertyAPI.Controllers
             
             //map the createDTO to property object and save it to the db.
             Property propertyObj = _mapper.Map<Property>(createDTO);
-            await _db.Properties.AddAsync(propertyObj);
-            await _db.SaveChangesAsync();
-
+            await _dbProperty.CreateAsync(propertyObj);
+            
             return CreatedAtRoute("GetProperty", new { id = propertyObj.Id }, propertyObj);
         }
 
@@ -99,16 +99,15 @@ namespace HotProperty_PropertyAPI.Controllers
                 return BadRequest();
             }
             // if id is not 0, get the property from data store
-            var property = await _db.Properties.FirstOrDefaultAsync(u => u.Id == id);
+            var property = await _dbProperty.GetAsync(u => u.Id == id);
 
             if (property == null) //if property is not (not in the list), return not found
             {
                 return NotFound();
             }
             // if property is in the list, remove it
-
-            _db.Properties.Remove(property);
-            await _db.SaveChangesAsync();
+            
+            await _dbProperty.RemoveAsync(property);
             return NoContent(); //delete request return no content
 
         }
@@ -127,8 +126,7 @@ namespace HotProperty_PropertyAPI.Controllers
             // map the DTO to propertyObj and update the DB
             Property propertyObj = _mapper.Map<Property>(updateDTO);
 
-            _db.Properties.Update(propertyObj);
-            await _db.SaveChangesAsync();
+            await _dbProperty.UpdateAsync(propertyObj);            
             return NoContent();
         }
 
@@ -144,7 +142,7 @@ namespace HotProperty_PropertyAPI.Controllers
             }
             //retrive the property from database from the id provided
             //if not null, create a new propertyDTO from the real object
-            var propertyObj = await _db.Properties.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
+            var propertyObj = await _dbProperty.GetAsync(u => u.Id == id,tracked:false);
 
             if (propertyObj == null)
             {
@@ -163,9 +161,8 @@ namespace HotProperty_PropertyAPI.Controllers
             }
 
             //if valid, map the patched DTO back to a new propertyObject, then update the database and finally save!
-            Property newPropertyObj = _mapper.Map<Property>(propertyDTO);
-            _db.Properties.Update(newPropertyObj);
-            await _db.SaveChangesAsync();
+            Property newPropertyObj = _mapper.Map<Property>(propertyDTO);            
+            await _dbProperty.UpdateAsync(newPropertyObj);
             return NoContent();
         }
     }

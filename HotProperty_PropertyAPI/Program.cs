@@ -1,6 +1,7 @@
 using HotProperty_PropertyAPI;
 using HotProperty_PropertyAPI.Data;
 using HotProperty_PropertyAPI.Logging;
+using HotProperty_PropertyAPI.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ILogging, LoggingV2>();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
+builder.Services.AddScoped<IPropertyRepository, IPropertyRepository>();
 
 var app = builder.Build();
 
