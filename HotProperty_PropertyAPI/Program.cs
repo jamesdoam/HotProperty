@@ -1,3 +1,4 @@
+using HotProperty_PropertyAPI;
 using HotProperty_PropertyAPI.Data;
 using HotProperty_PropertyAPI.Logging;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ILogging, LoggingV2>();
+builder.Services.AddAutoMapper(typeof(MappingConfig));
 
 var app = builder.Build();
 

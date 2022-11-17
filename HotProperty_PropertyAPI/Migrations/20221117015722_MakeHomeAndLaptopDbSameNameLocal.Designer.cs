@@ -4,6 +4,7 @@ using HotProperty_PropertyAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotProperty_PropertyAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221117015722_MakeHomeAndLaptopDbSameNameLocal")]
+    partial class MakeHomeAndLaptopDbSameNameLocal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,7 +78,7 @@ namespace HotProperty_PropertyAPI.Migrations
                             Id = 1,
                             Area = 591,
                             AskingPrice = 980000,
-                            CreatedDate = new DateTime(2022, 11, 17, 15, 50, 7, 192, DateTimeKind.Local).AddTicks(2658),
+                            CreatedDate = new DateTime(2022, 11, 17, 12, 57, 22, 540, DateTimeKind.Local).AddTicks(1913),
                             ImageUrl = "https://dotnetmasteryimages.blob.core.windows.net/bluevillaimages/villa3.jpg",
                             Name = "11 James St",
                             NoBedroom = 3,
@@ -91,7 +93,7 @@ namespace HotProperty_PropertyAPI.Migrations
                             Id = 2,
                             Area = 750,
                             AskingPrice = 1080000,
-                            CreatedDate = new DateTime(2022, 11, 17, 15, 50, 7, 192, DateTimeKind.Local).AddTicks(2662),
+                            CreatedDate = new DateTime(2022, 11, 17, 12, 57, 22, 540, DateTimeKind.Local).AddTicks(1918),
                             ImageUrl = "https://dotnetmasteryimages.blob.core.windows.net/bluevillaimages/villa3.jpg",
                             Name = "16 Lily Crt",
                             NoBedroom = 4,
@@ -106,7 +108,7 @@ namespace HotProperty_PropertyAPI.Migrations
                             Id = 3,
                             Area = 720,
                             AskingPrice = 688000,
-                            CreatedDate = new DateTime(2022, 11, 17, 15, 50, 7, 192, DateTimeKind.Local).AddTicks(2666),
+                            CreatedDate = new DateTime(2022, 11, 17, 12, 57, 22, 540, DateTimeKind.Local).AddTicks(1921),
                             ImageUrl = "https://dotnetmasteryimages.blob.core.windows.net/bluevillaimages/villa3.jpg",
                             Name = "177 Wonderwomen Prd",
                             NoBedroom = 4,

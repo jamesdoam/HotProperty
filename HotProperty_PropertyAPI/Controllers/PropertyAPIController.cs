@@ -1,4 +1,5 @@
-﻿using HotProperty_PropertyAPI.Data;
+﻿using AutoMapper;
+using HotProperty_PropertyAPI.Data;
 using HotProperty_PropertyAPI.Logging;
 using HotProperty_PropertyAPI.Models;
 using HotProperty_PropertyAPI.Models.Dto;
@@ -16,11 +17,13 @@ namespace HotProperty_PropertyAPI.Controllers
     {
         private readonly ILogging _logger;
         private readonly ApplicationDbContext _db;
+        private readonly IMapper _mapper;
 
-        public PropertyAPIController(ILogging logger, ApplicationDbContext db)
+        public PropertyAPIController(ILogging logger, ApplicationDbContext db, IMapper mapper)
         {
             _logger = logger;
             _db = db;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -28,7 +31,9 @@ namespace HotProperty_PropertyAPI.Controllers
         public async Task<ActionResult<IEnumerable<PropertyDTO>>> GetProperties()
         {
             _logger.Log("LogInfo: Getting all properties",""); //2 arguments, first is message, second is type = "" blank
-            return Ok(await _db.Properties.ToListAsync());
+            //get a list of all properties in the DB and then map them to DTOs and return
+            IEnumerable<Property> propertyList = await _db.Properties.ToListAsync();
+            return Ok(_mapper.Map<List<PropertyDTO>>(propertyList));
 
         }
 
@@ -50,46 +55,37 @@ namespace HotProperty_PropertyAPI.Controllers
                 _logger.Log("LogError: Property not found", "error");
                 return NotFound();
             }
-
-            return Ok(property);
+            //map property object to propertyDTO object and return
+            return Ok(_mapper.Map<PropertyDTO>(property));
         }
 
+// ********************** CREATE PROPERTY *************************//
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<PropertyDTO>> CreateProperty([FromBody] PropertyCreateDTO propertyDTO)
+        public async Task<ActionResult<PropertyDTO>> CreateProperty([FromBody] PropertyCreateDTO createDTO)
         {   //check if the property name is already exist in the propertyList
-            if (await _db.Properties.FirstOrDefaultAsync(u => u.Name.ToLower() == propertyDTO.Name.ToLower()) != null)
+            if (await _db.Properties.FirstOrDefaultAsync(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null)
             {
                 _logger.Log("LogError: Create Property with duplicated name", "error");
                 ModelState.AddModelError("CustomError", "Property name already exists!");
                 return BadRequest(ModelState);
             }
-            if (propertyDTO == null)
+            if (createDTO == null)
             {
-                return BadRequest(propertyDTO);
+                return BadRequest(createDTO);
             }
-            //No need to check Id because CreateDTO doesn't have Id field
-            //if (propertyDTO.Id > 0)
-            //{
-            //    return StatusCode(StatusCodes.Status500InternalServerError);
-            //}
-            //create a new Property obj from PropertyDTO and save it to localdb
-            Property propertyObj = new()
-            {
-                Name = propertyDTO.Name,
-                State = propertyDTO.State,
-                AskingPrice = propertyDTO.AskingPrice,
-                NoBedroom = propertyDTO.NoBedroom,
-                ImageUrl = propertyDTO.ImageUrl
-            };
+            
+            //map the createDTO to property object and save it to the db.
+            Property propertyObj = _mapper.Map<Property>(createDTO);
             await _db.Properties.AddAsync(propertyObj);
             await _db.SaveChangesAsync();
 
             return CreatedAtRoute("GetProperty", new { id = propertyObj.Id }, propertyObj);
         }
 
+// ********************** DELETE PROPERTY *************************//
         [HttpDelete("{id:int}", Name = "DeleteProperty")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -115,33 +111,26 @@ namespace HotProperty_PropertyAPI.Controllers
 
         }
 
+// ********************** UPDATE PROPERTY *************************//
         [HttpPut("{id:int}", Name = "UpdateProperty")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> UpdateProperty(int id, [FromBody]PropertyUpdateDTO propertyDTO)
+        public async Task<IActionResult> UpdateProperty(int id, [FromBody]PropertyUpdateDTO updateDTO)
         {
             //if not valid, return bad request
-            if (id != propertyDTO.Id || propertyDTO == null)
+            if (id != updateDTO.Id || updateDTO == null)
             {
                 return BadRequest();
             }
-
-            //create a new property object from the propertyDto and update it to the database
-            Property propertyObj = new()
-            {
-                Id = propertyDTO.Id,
-                Name = propertyDTO.Name,
-                State = propertyDTO.State,
-                AskingPrice = propertyDTO.AskingPrice,
-                NoBedroom = propertyDTO.NoBedroom,
-                ImageUrl = propertyDTO.ImageUrl
-            };
+            // map the DTO to propertyObj and update the DB
+            Property propertyObj = _mapper.Map<Property>(updateDTO);
 
             _db.Properties.Update(propertyObj);
             await _db.SaveChangesAsync();
             return NoContent();
         }
 
+// ********************** UPDATE PARTIAL PROPERTY *************************//
         [HttpPatch("{id:int}", Name = "UpdatePartialProperty")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -155,52 +144,26 @@ namespace HotProperty_PropertyAPI.Controllers
             //if not null, create a new propertyDTO from the real object
             var propertyObj = await _db.Properties.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
 
-            PropertyUpdateDTO propertyDTO = new()
-            {
-                Id = propertyObj.Id,
-                Name = propertyObj.Name,
-                State = propertyObj.State,
-                AskingPrice = propertyObj.AskingPrice,
-                NoBedroom = propertyObj.NoBedroom,
-                ImageUrl = propertyObj.ImageUrl
-            };
-
             if (propertyObj == null)
             {
                 return BadRequest();
             }
 
+            //map the property obj retrieved from DB to UpdateDTO
+            PropertyUpdateDTO propertyDTO = _mapper.Map<PropertyUpdateDTO>(propertyObj);
+
             //then apply patchDTO to the new DTO object
             patchDTO.ApplyTo(propertyDTO, ModelState);
-
-            //if valid, create a new property obj from the patched DTO
-            //then update the database and finally save!
-            Property newPropertyObj = new Property()
-            {
-                Id = propertyDTO.Id,
-                Name = propertyDTO.Name,
-                State = propertyDTO.State,
-                AskingPrice = propertyDTO.AskingPrice,
-                NoBedroom = propertyDTO.NoBedroom,
-                ImageUrl = propertyDTO.ImageUrl
-            };
-
-            //propertyObj.Id = propertyDTO.Id;
-            //propertyObj.Name = propertyDTO.Name;
-            //propertyObj.State = propertyDTO.State;
-            //propertyObj.AskingPrice = propertyDTO.AskingPrice;
-            //propertyObj.NoBedroom = propertyDTO.NoBedroom;
-            //propertyObj.ImageUrl= propertyDTO.ImageUrl;
-
-
-            _db.Properties.Update(newPropertyObj);
-            await _db.SaveChangesAsync();
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            //if valid, map the patched DTO back to a new propertyObject, then update the database and finally save!
+            Property newPropertyObj = _mapper.Map<Property>(propertyDTO);
+            _db.Properties.Update(newPropertyObj);
+            await _db.SaveChangesAsync();
             return NoContent();
         }
     }
