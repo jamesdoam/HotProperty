@@ -26,6 +26,7 @@ namespace HotProperty_PropertyAPI.Controllers
             _mapper = mapper;
         }
 
+// ********************** GET ALL PROPERTIES *************************//
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<PropertyDTO>>> GetProperties()
@@ -37,6 +38,7 @@ namespace HotProperty_PropertyAPI.Controllers
 
         }
 
+// ********************** GET 1 PROPERTY *************************//
         [HttpGet("{id:int}", Name = "GetProperty")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
