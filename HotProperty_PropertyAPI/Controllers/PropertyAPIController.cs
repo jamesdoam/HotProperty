@@ -32,9 +32,10 @@ namespace HotProperty_PropertyAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<PropertyDTO>>> GetProperties()
         {
-            _logger.Log("LogInfo: Getting all properties",""); //2 arguments, first is message, second is type = "" blank
+            
             //get a list of all properties in the DB and then map them to DTOs and return
             IEnumerable<Property> propertyList = await _dbProperty.GetAllAsync();
+            _logger.Log("LogInfo: Getting all properties succesfully", "success"); //2 arguments, first is message, second is type = "" blank
             return Ok(_mapper.Map<List<PropertyDTO>>(propertyList));
 
         }
@@ -77,13 +78,15 @@ namespace HotProperty_PropertyAPI.Controllers
             }
             if (createDTO == null)
             {
+                _logger.Log("LogError: I'm not sure what's going on here", "error");
                 return BadRequest(createDTO);
             }
             
             //map the createDTO to property object and save it to the db.
             Property propertyObj = _mapper.Map<Property>(createDTO);
             await _dbProperty.CreateAsync(propertyObj);
-            
+
+            _logger.Log("LogInfo: A New Property has been succesfully created", "success");
             return CreatedAtRoute("GetProperty", new { id = propertyObj.Id }, propertyObj);
         }
 

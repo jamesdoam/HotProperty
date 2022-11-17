@@ -1,6 +1,7 @@
 using HotProperty_PropertyAPI;
 using HotProperty_PropertyAPI.Data;
 using HotProperty_PropertyAPI.Logging;
+using HotProperty_PropertyAPI.Repository;
 using HotProperty_PropertyAPI.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,9 +16,9 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<ILogging, LoggingV2>();
+builder.Services.AddSingleton<ILogging, Logging>();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
-builder.Services.AddScoped<IPropertyRepository, IPropertyRepository>();
+builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
 
 var app = builder.Build();
 
