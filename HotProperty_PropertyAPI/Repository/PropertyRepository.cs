@@ -6,59 +6,20 @@ using System.Linq.Expressions;
 
 namespace HotProperty_PropertyAPI.Repository
 {
-    public class PropertyRepository : IPropertyRepository
+    public class PropertyRepository : Repository<Property>, IPropertyRepository
     {
         private readonly ApplicationDbContext _db;
-        public PropertyRepository(ApplicationDbContext db)
+        public PropertyRepository(ApplicationDbContext db):base(db)
         {
             _db = db;
         }
 
-        public async Task CreateAsync(Property entity)
+        public async Task<Property> UpdateAsync(Property entity)
         {
-            await _db.Properties.AddAsync(entity);
-            await SaveAsync();
-        }
-
-        public async Task<Property> GetAsync(Expression<Func<Property, bool>> filter = null, bool tracked = true)
-        {
-            IQueryable<Property> query = _db.Properties;
-            if(!tracked)
-            {
-                query = query.AsNoTracking();
-            }
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
-            return await query.FirstOrDefaultAsync();
-        }
-
-        public async Task<List<Property>> GetAllAsync(Expression<Func<Property, bool>> filter = null)
-        {
-            IQueryable<Property> query = _db.Properties;
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
-            return await query.ToListAsync();
-        }
-
-        public async Task RemoveAsync(Property entity)
-        {
-            _db.Properties.Remove(entity);
-            await SaveAsync();
-        }
-
-        public async Task SaveAsync()
-        {
-            await _db.SaveChangesAsync();
-        }
-
-        public async Task UpdateAsync(Property entity)
-        {
+            entity.UpdatedDate = DateTime.Now;
             _db.Properties.Update(entity);
-            await SaveAsync();
+            await _db.SaveChangesAsync();
+            return entity;
         }
     }
 }
