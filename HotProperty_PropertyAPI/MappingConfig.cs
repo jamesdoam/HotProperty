@@ -13,6 +13,10 @@ namespace HotProperty_PropertyAPI
 
             CreateMap<Property, PropertyCreateDTO>().ReverseMap();
             CreateMap<Property, PropertyUpdateDTO>().ReverseMap();
+
+            CreateMap<PropertyNumber, PropertyNumberDTO>().ReverseMap();
+            CreateMap<PropertyNumber, PropertyNumberCreateDTO>().ReverseMap();
+            CreateMap<PropertyNumber, PropertyNumberUpdateDTO>().ReverseMap();
         }
     }
 }

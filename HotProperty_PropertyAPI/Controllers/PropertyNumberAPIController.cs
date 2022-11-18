@@ -13,36 +13,36 @@ using System.Runtime.CompilerServices;
 namespace HotProperty_PropertyAPI.Controllers
 {
     [ApiController]
-    [Route("api/PropertyAPI")]
+    [Route("api/PropertyNumberAPI")]
     //[Route("api/[controller]") this will use the controller name in the route
-    public class PropertyAPIController : ControllerBase
+    public class PropertyNumberAPIController : ControllerBase
     {
         private readonly ILogging _logger;
-        private readonly IPropertyRepository _dbProperty;
+        private readonly IPropertyNumberRepository _dbPropertyNumber;
         private readonly IMapper _mapper;
         protected APIResponse _response;
 
-        public PropertyAPIController(ILogging logger, IPropertyRepository dbProperty, IMapper mapper)
+        public PropertyNumberAPIController(ILogging logger, IPropertyNumberRepository dbPropertyNumber, IMapper mapper)
         {
             _logger = logger;
-            _dbProperty = dbProperty;
+            _dbPropertyNumber = dbPropertyNumber;
             _mapper = mapper;
             this._response = new();
         }
 
-// ********************** GET ALL PROPERTIES *************************//
+// ********************** GET ALL PROPERTY NUMBERS *************************//
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         //instead of returning IEnumerable of Property, this time return APIResponse
-        public async Task<ActionResult<APIResponse>> GetProperties()
+        public async Task<ActionResult<APIResponse>> GetPropertyNumbers()
         {
             try
             {
                 //get a list of all properties in the DB and then map them to DTOs and add to response object.
-                IEnumerable<Property> propertyList = await _dbProperty.GetAllAsync();
-                _response.Result = _mapper.Map<List<PropertyDTO>>(propertyList);
+                IEnumerable<PropertyNumber> propertyNumberList = await _dbPropertyNumber.GetAllAsync();
+                _response.Result = _mapper.Map<List<PropertyNumberDTO>>(propertyNumberList);
                 _response.StatusCode = HttpStatusCode.OK;
-                _logger.Log("LogInfo: Getting all properties succesfully", "success"); //2 arguments, first is message, second is type = "" blank
+                _logger.Log("LogInfo: Getting all property numbers succesfully", "success"); //2 arguments, first is message, second is type = "" blank
                 return Ok(_response);
             }
             catch (Exception ex)
@@ -53,12 +53,12 @@ namespace HotProperty_PropertyAPI.Controllers
             return _response;
         }
 
-// ********************** GET 1 PROPERTY *************************//
-        [HttpGet("{id:int}", Name = "GetProperty")]
+// ********************** GET 1 PROPERTY NUMBER*************************//
+        [HttpGet("{id:int}", Name = "GetPropertyNumber")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<APIResponse>> GetProperty(int id)
+        public async Task<ActionResult<APIResponse>> GetPropertyNumber(int id)
         {
             try
             {
@@ -69,16 +69,16 @@ namespace HotProperty_PropertyAPI.Controllers
                     return BadRequest(_response);
                 }
 
-                var property = await _dbProperty.GetAsync(u => u.Id == id);
+                var propertyNumber = await _dbPropertyNumber.GetAsync(u => u.PropertyNo == id);
                 
-                if (property == null)
+                if (propertyNumber == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
-                    _logger.Log("LogError: Property not found", "error");
+                    _logger.Log("LogError: Property Number not found", "error");
                     return NotFound(_response);
                 }
                 //map property object to propertyDTO object and add to response obj
-                _response.Result = _mapper.Map<PropertyDTO>(property);
+                _response.Result = _mapper.Map<PropertyNumberDTO>(propertyNumber);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
@@ -91,20 +91,20 @@ namespace HotProperty_PropertyAPI.Controllers
             return _response;
         }
 
-// ********************** CREATE PROPERTY *************************//
+// ********************** CREATE PROPERTY NUMBER*************************//
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<APIResponse>> CreateProperty([FromBody] PropertyCreateDTO createDTO)
+        public async Task<ActionResult<APIResponse>> CreatePropertyNumber([FromBody] PropertyNumberCreateDTO createDTO)
         {
             try
             {
                 //check if the property name is already exist in the propertyList
-                if (await _dbProperty.GetAsync(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null)
+                if (await _dbPropertyNumber.GetAsync(u => u.PropertyNo == createDTO.PropertyNo) != null)
                 {
-                    _logger.Log("LogError: Create Property with duplicated name", "error");
-                    ModelState.AddModelError("CustomError", "Property name already exists!");
+                    _logger.Log("LogError: Create Property Number with duplicated Number", "error");
+                    ModelState.AddModelError("CustomError", "Property Number name already exists!");
                     return BadRequest(ModelState);
                 }
                 if (createDTO == null)
@@ -114,13 +114,13 @@ namespace HotProperty_PropertyAPI.Controllers
                 }
 
                 //map the createDTO to property object and save it to the db.
-                Property propertyObj = _mapper.Map<Property>(createDTO);
-                await _dbProperty.CreateAsync(propertyObj);
-                _response.Result = _mapper.Map<PropertyDTO>(propertyObj);
+                PropertyNumber propertyNumberObj = _mapper.Map<PropertyNumber>(createDTO);
+                await _dbPropertyNumber.CreateAsync(propertyNumberObj);
+                _response.Result = _mapper.Map<PropertyNumberDTO>(propertyNumberObj);
                 _response.StatusCode = HttpStatusCode.Created;
 
-                _logger.Log("LogInfo: A New Property has been succesfully created", "success");
-                return CreatedAtRoute("GetProperty", new { id = propertyObj.Id }, _response);
+                _logger.Log("LogInfo: A New Property Number has been succesfully created", "success");
+                return CreatedAtRoute("GetPropertyNumber", new { id = propertyNumberObj.PropertyNo }, _response);
             }
             
             catch (Exception ex)
@@ -133,11 +133,11 @@ namespace HotProperty_PropertyAPI.Controllers
         }
 
 // ********************** DELETE PROPERTY *************************//
-        [HttpDelete("{id:int}", Name = "DeleteProperty")]
+        [HttpDelete("{id:int}", Name = "DeletePropertyNumber")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<APIResponse>> DeleteProperty(int id)
+        public async Task<ActionResult<APIResponse>> DeletePropertyNumber(int id)
         {
             try
             {
@@ -145,16 +145,16 @@ namespace HotProperty_PropertyAPI.Controllers
                 {
                     return BadRequest();
                 }
-                // if id is not 0, get the property from data store
-                var property = await _dbProperty.GetAsync(u => u.Id == id);
+                // if id is not 0, get the property number from data store
+                var propertyNumberObj = await _dbPropertyNumber.GetAsync(u => u.PropertyNo == id);
 
-                if (property == null) //if property is not (not in the list), return not found
+                if (propertyNumberObj == null) //if property is not (not in the list), return not found
                 {
                     return NotFound();
                 }
                 // if property is in the list, remove it
 
-                await _dbProperty.RemoveAsync(property);
+                await _dbPropertyNumber.RemoveAsync(propertyNumberObj);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response); //delete request return no content
@@ -168,23 +168,23 @@ namespace HotProperty_PropertyAPI.Controllers
             return _response; 
         }
 
-// ********************** UPDATE PROPERTY *************************//
-        [HttpPut("{id:int}", Name = "UpdateProperty")]
+// ********************** UPDATE PROPERTY NUMBER *************************//
+        [HttpPut("{id:int}", Name = "UpdatePropertyNumber")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<APIResponse>> UpdateProperty(int id, [FromBody]PropertyUpdateDTO updateDTO)
+        public async Task<ActionResult<APIResponse>> UpdatePropertyNumber(int id, [FromBody] PropertyNumberUpdateDTO updateDTO)
         {
             try
             {
-                if (id != updateDTO.Id || updateDTO == null)
+                if (id != updateDTO.PropertyNo || updateDTO == null)
                 {
                     //if not valid, return bad request
                     return BadRequest();
                 }
                 // map the DTO to propertyObj and update the DB
-                Property propertyObj = _mapper.Map<Property>(updateDTO);
+                PropertyNumber propertyNumberObj = _mapper.Map<PropertyNumber>(updateDTO);
 
-                await _dbProperty.UpdateAsync(propertyObj);
+                await _dbPropertyNumber.UpdateAsync(propertyNumberObj);
                 _response.StatusCode = HttpStatusCode.NoContent;
                 _response.IsSuccess = true;
                 return Ok(_response);
@@ -197,42 +197,6 @@ namespace HotProperty_PropertyAPI.Controllers
             }            
                    
             return _response;
-        }
-
-// ********************** UPDATE PARTIAL PROPERTY *************************//
-        [HttpPatch("{id:int}", Name = "UpdatePartialProperty")]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> UpdatePartialProperty(int id, JsonPatchDocument<PropertyUpdateDTO> patchDTO)
-        {
-            if(patchDTO == null || id == 0)
-            {
-                return BadRequest();
-            }
-            //retrive the property from database from the id provided
-            //if not null, create a new propertyDTO from the real object
-            var propertyObj = await _dbProperty.GetAsync(u => u.Id == id,tracked:false);
-
-            if (propertyObj == null)
-            {
-                return BadRequest();
-            }
-
-            //map the property obj retrieved from DB to UpdateDTO
-            PropertyUpdateDTO propertyDTO = _mapper.Map<PropertyUpdateDTO>(propertyObj);
-
-            //then apply patchDTO to the new DTO object
-            patchDTO.ApplyTo(propertyDTO, ModelState);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            //if valid, map the patched DTO back to a new propertyObject, then update the database and finally save!
-            Property newPropertyObj = _mapper.Map<Property>(propertyDTO);            
-            await _dbProperty.UpdateAsync(newPropertyObj);
-            return NoContent();
         }
     }
 }
