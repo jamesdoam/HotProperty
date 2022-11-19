@@ -19,14 +19,16 @@ namespace HotProperty_PropertyAPI.Controllers
     {
         private readonly ILogging _logger;
         private readonly IPropertyNumberRepository _dbPropertyNumber;
+        private readonly IPropertyRepository _dbProperty;
         private readonly IMapper _mapper;
         protected APIResponse _response;
 
-        public PropertyNumberAPIController(ILogging logger, IPropertyNumberRepository dbPropertyNumber, IMapper mapper)
+        public PropertyNumberAPIController(ILogging logger, IMapper mapper, IPropertyNumberRepository dbPropertyNumber, IPropertyRepository dbProperty)
         {
-            _logger = logger;
-            _dbPropertyNumber = dbPropertyNumber;
+            _logger = logger;            
             _mapper = mapper;
+            _dbPropertyNumber = dbPropertyNumber;
+            _dbProperty = dbProperty;
             this._response = new();
         }
 
@@ -100,13 +102,20 @@ namespace HotProperty_PropertyAPI.Controllers
         {
             try
             {
-                //check if the property name is already exist in the propertyList
+                //check if the Property Number is already exist in the propertyList
                 if (await _dbPropertyNumber.GetAsync(u => u.PropertyNo == createDTO.PropertyNo) != null)
                 {
                     _logger.Log("LogError: Create Property Number with duplicated Number", "error");
-                    ModelState.AddModelError("CustomError", "Property Number name already exists!");
+                    ModelState.AddModelError("CustomError", "Property Number already exists!");
                     return BadRequest(ModelState);
                 }
+                //check if there is a property in the database with id = PropertyID from the CreateDTO
+                if (await _dbProperty.GetAsync(u=>u.Id == createDTO.PropertyID)==null)
+                {
+                    ModelState.AddModelError("CustomError", "PropertyID is invalid!");
+                    return BadRequest(ModelState);
+                }
+
                 if (createDTO == null)
                 {
                     _logger.Log("LogError: I'm not sure what's going on here", "error");
@@ -181,6 +190,14 @@ namespace HotProperty_PropertyAPI.Controllers
                     //if not valid, return bad request
                     return BadRequest();
                 }
+
+                //check if there is a property in the database with id = PropertyID from the CreateDTO
+                if (await _dbProperty.GetAsync(u => u.Id == updateDTO.PropertyID) == null)
+                {
+                    ModelState.AddModelError("CustomError", "PropertyID is invalid!");
+                    return BadRequest(ModelState);
+                }
+
                 // map the DTO to propertyObj and update the DB
                 PropertyNumber propertyNumberObj = _mapper.Map<PropertyNumber>(updateDTO);
 

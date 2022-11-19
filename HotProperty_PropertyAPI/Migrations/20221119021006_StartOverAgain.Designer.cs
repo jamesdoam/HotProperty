@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotProperty_PropertyAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20221118062410_AddPropertyNumberModelAndAPI")]
-    partial class AddPropertyNumberModelAndAPI
+    [Migration("20221119021006_StartOverAgain")]
+    partial class StartOverAgain
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -71,53 +71,6 @@ namespace HotProperty_PropertyAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Properties");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Area = 591,
-                            AskingPrice = 980000,
-                            CreatedDate = new DateTime(2022, 11, 18, 17, 24, 9, 944, DateTimeKind.Local).AddTicks(5773),
-                            ImageUrl = "https://dotnetmasteryimages.blob.core.windows.net/bluevillaimages/villa3.jpg",
-                            Name = "11 James St",
-                            NoBedroom = 3,
-                            NoToilet = 4,
-                            PostCode = "3084",
-                            State = "VIC",
-                            Suburb = "Heidelberg",
-                            UpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Area = 750,
-                            AskingPrice = 1080000,
-                            CreatedDate = new DateTime(2022, 11, 18, 17, 24, 9, 944, DateTimeKind.Local).AddTicks(5779),
-                            ImageUrl = "https://dotnetmasteryimages.blob.core.windows.net/bluevillaimages/villa3.jpg",
-                            Name = "16 Lily Crt",
-                            NoBedroom = 4,
-                            NoToilet = 2,
-                            PostCode = "2011",
-                            State = "NSW",
-                            Suburb = "Frankston",
-                            UpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Area = 720,
-                            AskingPrice = 688000,
-                            CreatedDate = new DateTime(2022, 11, 18, 17, 24, 9, 944, DateTimeKind.Local).AddTicks(5784),
-                            ImageUrl = "https://dotnetmasteryimages.blob.core.windows.net/bluevillaimages/villa3.jpg",
-                            Name = "177 Wonderwomen Prd",
-                            NoBedroom = 4,
-                            NoToilet = 2,
-                            PostCode = "4011",
-                            State = "QLD",
-                            Suburb = "Hans",
-                            UpdatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("HotProperty_PropertyAPI.Models.PropertyNumber", b =>
@@ -128,6 +81,9 @@ namespace HotProperty_PropertyAPI.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("PropertyID")
+                        .HasColumnType("int");
+
                     b.Property<string>("SpecialDetails")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -137,7 +93,20 @@ namespace HotProperty_PropertyAPI.Migrations
 
                     b.HasKey("PropertyNo");
 
+                    b.HasIndex("PropertyID");
+
                     b.ToTable("PropertyNumbers");
+                });
+
+            modelBuilder.Entity("HotProperty_PropertyAPI.Models.PropertyNumber", b =>
+                {
+                    b.HasOne("HotProperty_PropertyAPI.Models.Property", "Property")
+                        .WithMany()
+                        .HasForeignKey("PropertyID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Property");
                 });
 #pragma warning restore 612, 618
         }
