@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using System.Net;
+﻿using System.Net;
 
 namespace HotProperty_Web.Models
 {
@@ -7,7 +6,7 @@ namespace HotProperty_Web.Models
     {
         public HttpStatusCode StatusCode { get; set; }
         public bool IsSuccess { get; set; } = true;
-        public List<String> ErrorMessage { get; set; }
+        public List<String> ErrorMessages { get; set; }
         public object Result {get;set;}
     }
 }
