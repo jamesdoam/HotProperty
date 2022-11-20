@@ -26,8 +26,8 @@
                     <td>@property.AskingPrice</td>
                     <td>@property.NoBedroom</td>
                     <td>
-                        <a asp-controller="Property" asp-action="PropertyUpdate" class="btn btn-success"><i class="bi bi-pencil-square"></i></a>
-                        <a asp-controller="Property" asp-action="PropertyDelete" class="btn btn-danger"><i class="bi bi-trash-fill"></i></a>
+                        <a asp-controller="Property" asp-action="PropertyUpdate" asp-route-propertyId="@property.Id" class="btn btn-success"><i class="bi bi-pencil-square"></i></a>
+                        <a asp-controller="Property" asp-action="PropertyDelete" asp-route-propertyId="@property.Id" class="btn btn-danger"><i class="bi bi-trash-fill"></i></a>
                      </td>
                 </tr>
             }

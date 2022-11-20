@@ -11,7 +11,7 @@ namespace HotProperty_Web.Models.Dto
         public int AskingPrice { get; set; }
         public int NoBedroom { get; set; }
         public string State { get; set; }
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }
 

@@ -1,0 +1,66 @@
+﻿@model HotProperty_Web.Models.Dto.PropertyUpdateDTO
+
+<form asp-action="PropertyUpdate">
+    <br />
+    <div class="container border p-3">
+        <h1 class="text-primary">Update Property</h1>
+        <hr />
+
+        <input hidden asp-for="Id" />
+        <div class="row">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="col-2">
+                <label asp-for="Name" class="control-label pt-2" style="font-size:20px;"></label>
+            </div>
+            <div class="col-10 pb-3">
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="col-2">
+                <label asp-for="AskingPrice" class="control-label pt-2" style="font-size:20px;"></label>
+            </div>
+            <div class="col-10 pb-3">
+                <input asp-for="AskingPrice" class="form-control" />
+                <span asp-validation-for="AskingPrice" class="text-danger"></span>
+            </div>
+
+            <div class="col-2">
+                <label asp-for="NoBedroom" class="control-label pt-2" style="font-size:20px;"></label>
+            </div>
+            <div class="col-10 pb-3">
+                <input asp-for="NoBedroom" class="form-control" rows="5"></input>
+                <span asp-validation-for="NoBedroom" class="text-danger"></span>
+            </div>
+
+            <div class="col-2">
+                <label asp-for="State" class="control-label pt-2" style="font-size:20px;"></label>
+            </div>
+            <div class="col-10 pb-3">
+                <input asp-for="State" class="form-control" rows="5"></input>
+                <span asp-validation-for="State" class="text-danger"></span>
+            </div>
+
+            <div class="col-2">
+                <label asp-for="ImageUrl" class="control-label pt-2" style="font-size:20px;"></label>
+            </div>
+            <div class="col-10 pb-3">
+                <input asp-for="ImageUrl" class="form-control" />
+                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+            </div>
+
+            <div class="col-5 offset-2">
+                <a asp-action="PropertyIndex" asp-controller="Property" class="btn-primary btn form-control ">Back to Property List</a>
+            </div>
+            <div class="col-5">
+                <input type="submit" value="Update" class="btn btn-success form-control" />
+            </div>
+        </div>
+    </div>
+</form>
+
+                
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}
