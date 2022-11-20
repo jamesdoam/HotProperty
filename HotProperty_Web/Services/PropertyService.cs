@@ -31,17 +31,19 @@ namespace HotProperty_Web.Services
             return SendAsync<T>(new APIRequest()
             {
                 ApiType = SD.ApiType.DELETE,
-                Url = propertyUrl + "api/PropertyAPI/" + id
+                Url = propertyUrl + "/api/PropertyAPI/" + id
             });
         }
 
         public Task<T> GetAllAsync<T>()
         {
-            return SendAsync<T>(new APIRequest()
+            APIRequest request = new APIRequest()
             {
                 ApiType = SD.ApiType.GET,
-                Url = propertyUrl + "api/PropertyAPI"
-            });
+                Url = propertyUrl + "/api/PropertyAPI"
+            };
+
+            return SendAsync<T>(request);            
         }
 
         public Task<T> GetAsync<T>(int id)
@@ -49,7 +51,7 @@ namespace HotProperty_Web.Services
             return SendAsync<T>(new APIRequest()
             {
                 ApiType = SD.ApiType.GET,
-                Url = propertyUrl + "api/PropertyAPI/" + id
+                Url = propertyUrl + "/api/PropertyAPI/" + id
             });
         }
 
@@ -59,7 +61,7 @@ namespace HotProperty_Web.Services
             {
                 ApiType = SD.ApiType.PUT,
                 Data = dto,
-                Url = propertyUrl + "api/PropertyAPI/" + dto.Id
+                Url = propertyUrl + "/api/PropertyAPI/" + dto.Id
             });
         }
     }
