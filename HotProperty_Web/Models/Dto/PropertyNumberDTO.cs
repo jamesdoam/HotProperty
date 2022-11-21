@@ -10,5 +10,6 @@ namespace HotProperty_Web.Models.Dto
         [Required]
         public int PropertyID { get; set; }
         public string SpecialDetails { get; set; }
+        public PropertyDTO PropertyDTO { get; set; }
     }
 }

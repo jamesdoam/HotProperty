@@ -1,0 +1,40 @@
+﻿@model IEnumerable<HotProperty_Web.Models.Dto.PropertyNumberDTO>
+
+<br />
+<div class="container p-4 border">
+    <div class="row pb-2">
+        <div class="col">
+			<h1 class="text-primary">Property Number List</h1>
+        </div>
+        <div class="col text-end pt-1">
+			<a asp-controller="PropertyNumber" asp-action="PropertyNumberCreate" class="btn btn-outline-primary"><i class="bi bi-plus-square-fill"></i> Create New Number</a>
+        </div>
+    </div>
+
+    <table class="table">
+		<thead>
+			<tr>
+				<th>
+					Property Name
+				</th>
+				<th>
+					Property Number
+				</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach(var item in Model){
+				<tr>
+					<td>@item.PropertyDTO.Name</td>
+					<td>@item.PropertyNo</td>
+					<td>
+						<a asp-controller="Property" asp-action="PropertyNumberUpdate" asp-route-propertyNo="@item.PropertyNo" class="btn btn-success"><i class="bi bi-pencil-square"></i></a>
+						<a asp-controller="Property" asp-action="PropertyNumberDelete" asp-route-propertyNo="@item.PropertyNo" class="btn btn-danger"><i class="bi bi-trash-fill"></i></a>
+					</td>
+				</tr>
+			}
+		</tbody>
+    </table>
+
+</div>

@@ -12,7 +12,7 @@ namespace HotProperty_PropertyAPI.Models
         public string? Suburb { get; set; }
         public string? PostCode { get; set; }
         public string State { get; set; }
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
         public int AskingPrice { get; set; }    
         public int? Area { get; set; }   
         public int NoBedroom { get; set; }

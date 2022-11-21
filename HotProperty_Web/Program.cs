@@ -11,6 +11,9 @@ builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddHttpClient<IPropertyService, PropertyService>();
 builder.Services.AddScoped<IPropertyService, PropertyService>();
 
+builder.Services.AddHttpClient<IPropertyNumberService, PropertyNumberService>();
+builder.Services.AddScoped<IPropertyNumberService, PropertyNumberService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
