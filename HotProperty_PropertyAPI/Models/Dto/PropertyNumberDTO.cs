@@ -9,6 +9,7 @@ namespace HotProperty_PropertyAPI.Models.Dto
 
         [Required]
         public int PropertyID { get; set; }
+        public PropertyDTO Property { get; set; }
         public string SpecialDetails { get; set; }
     }
 }

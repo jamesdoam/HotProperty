@@ -26,11 +26,11 @@
 		<tbody>
 			@foreach(var item in Model){
 				<tr>
-					<td>@item.PropertyDTO.Name</td>
+					<td>@item.Property.Name</td>
 					<td>@item.PropertyNo</td>
 					<td>
-						<a asp-controller="Property" asp-action="PropertyNumberUpdate" asp-route-propertyNo="@item.PropertyNo" class="btn btn-success"><i class="bi bi-pencil-square"></i></a>
-						<a asp-controller="Property" asp-action="PropertyNumberDelete" asp-route-propertyNo="@item.PropertyNo" class="btn btn-danger"><i class="bi bi-trash-fill"></i></a>
+						<a asp-controller="PropertyNumber" asp-action="PropertyNumberUpdate" asp-route-propertyNo="@item.PropertyNo" class="btn btn-success"><i class="bi bi-pencil-square"></i></a>
+						<a asp-controller="PropertyNumber" asp-action="PropertyNumberDelete" asp-route-propertyNo="@item.PropertyNo" class="btn btn-danger"><i class="bi bi-trash-fill"></i></a>
 					</td>
 				</tr>
 			}

@@ -41,7 +41,7 @@ namespace HotProperty_PropertyAPI.Controllers
             try
             {
                 //get a list of all properties in the DB and then map them to DTOs and add to response object.
-                IEnumerable<PropertyNumber> propertyNumberList = await _dbPropertyNumber.GetAllAsync();
+                IEnumerable<PropertyNumber> propertyNumberList = await _dbPropertyNumber.GetAllAsync(includeProperties: "Property");
                 _response.Result = _mapper.Map<List<PropertyNumberDTO>>(propertyNumberList);
                 _response.StatusCode = HttpStatusCode.OK;
                 _logger.Log("LogInfo: Getting all property numbers succesfully", "success"); //2 arguments, first is message, second is type = "" blank

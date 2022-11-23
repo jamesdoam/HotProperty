@@ -5,9 +5,9 @@ VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotProperty_PropertyAPI", "HotProperty_PropertyAPI\HotProperty_PropertyAPI.csproj", "{BFC845DE-6951-4FE1-B6D4-1AEC3BE1431D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotProperty_Web", "HotProperty_Web\HotProperty_Web.csproj", "{175F0CF2-C5B8-4E93-BE34-C4D1C222F2EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotProperty_Web", "HotProperty_Web\HotProperty_Web.csproj", "{175F0CF2-C5B8-4E93-BE34-C4D1C222F2EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HotProperty_Utility", "HotProperty_Utility\HotProperty_Utility.csproj", "{5FDCEE8D-A849-4B61-AF71-23975DB17903}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HotProperty_Utility", "HotProperty_Utility\HotProperty_Utility.csproj", "{5FDCEE8D-A849-4B61-AF71-23975DB17903}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
