@@ -51,10 +51,12 @@ namespace HotProperty_Web.Controllers
                 var response = await _propertyService.CreateAsync<APIResponse>(createDTO);
                 if (response != null && response.IsSuccess)
                 {
+                    TempData["success"] = "Villa created successfully";
                     //if the response is success, i.e. a property has been created, return to Property Index
                     return RedirectToAction(nameof(PropertyIndex));
                 }
             }
+            TempData["error"] = "Error encountered.";
             return View(createDTO); //if not valid, stay at PropertyCreate view with all parameters the same!
         }
 
@@ -84,9 +86,11 @@ namespace HotProperty_Web.Controllers
                 var response = await _propertyService.UpdateAsync<APIResponse>(updateDTO);
                 if (response !=null && response.IsSuccess)
                 {
+                    TempData["error"] = "Error encountered.";
                     return RedirectToAction(nameof(PropertyIndex));
                 }
             }
+            TempData["error"] = "Error encountered.";
             //if not valid, stay at PropertyUpdate view with all parameters the same!
             return View(updateDTO);
         }
@@ -115,9 +119,11 @@ namespace HotProperty_Web.Controllers
             var response = await _propertyService.DeleteAsync<APIResponse>(propertyDTO.Id);
             if (response != null && response.IsSuccess)
             {
+                TempData["error"] = "Error encountered.";
                 //if deletion is success, return to the list of properties
                 return RedirectToAction(nameof(PropertyIndex));
             }
+            TempData["error"] = "Error encountered.";
             //if not valid, stay at Property Delete view with all parameters the same!
             return View(propertyDTO);
         }

@@ -106,13 +106,13 @@ namespace HotProperty_PropertyAPI.Controllers
                 if (await _dbPropertyNumber.GetAsync(u => u.PropertyNo == createDTO.PropertyNo) != null)
                 {
                     _logger.Log("LogError: Create Property Number with duplicated Number", "error");
-                    ModelState.AddModelError("CustomError", "Property Number already exists!");
+                    ModelState.AddModelError("ErrorMessages", "Property Number already exists!");
                     return BadRequest(ModelState);
                 }
                 //check if there is a property in the database with id = PropertyID from the CreateDTO
                 if (await _dbProperty.GetAsync(u=>u.Id == createDTO.PropertyID)==null)
                 {
-                    ModelState.AddModelError("CustomError", "PropertyID is invalid!");
+                    ModelState.AddModelError("ErrorMessages", "PropertyID is invalid!");
                     return BadRequest(ModelState);
                 }
 
@@ -194,7 +194,7 @@ namespace HotProperty_PropertyAPI.Controllers
                 //check if there is a property in the database with id = PropertyID from the CreateDTO
                 if (await _dbProperty.GetAsync(u => u.Id == updateDTO.PropertyID) == null)
                 {
-                    ModelState.AddModelError("CustomError", "PropertyID is invalid!");
+                    ModelState.AddModelError("ErrorMessages", "PropertyID is invalid!");
                     return BadRequest(ModelState);
                 }
 

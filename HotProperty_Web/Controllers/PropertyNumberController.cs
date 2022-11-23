@@ -2,8 +2,10 @@
 using HotProperty_Web.Models;
 using HotProperty_Web.Models.Dto;
 using HotProperty_Web.Models.VM;
+using HotProperty_Web.Services;
 using HotProperty_Web.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
 
 namespace HotProperty_Web.Controllers
@@ -64,72 +66,126 @@ namespace HotProperty_Web.Controllers
                     //if the response is success, i.e. a property has been created, return to Property Number Index
                     return RedirectToAction(nameof(PropertyNumberIndex));
                 }
+                else
+                {
+                    if (response.ErrorMessages.Count > 0)
+                    {
+                        ModelState.AddModelError("ErrorMessages", response.ErrorMessages.FirstOrDefault());
+                    }
+                }
+            }
+
+            var resp = await _propertyService.GetAllAsync<APIResponse>();
+            if (resp !=null &resp.IsSuccess)
+            {
+                createDTO.PropertyList = JsonConvert.DeserializeObject<List<PropertyDTO>>(Convert.ToString(resp.Result)).Select(i => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Text = i.Name,
+                    Value = i.Id.ToString()
+                }); ;
             }
             return View(createDTO); //if not valid, stay at PropertyCreate view with all parameters the same!
         }
 
-        //// ~~~~****** PROPERTY UPDATE ACTION - GET******~~~~ //
-        //public async Task<IActionResult> PropertyUpdate(int propertyId)
-        //{
-        //    //get the info of the Property using the Id and display in the form, get ready for edit
-        //    var response = await _propertyService.GetAsync<APIResponse>(propertyId);
-        //    //remember from the Property Service, the GetAsync method take an ID as input argument
-        //    if (response != null&& response.IsSuccess)
-        //    {
-        //        PropertyDTO propertyDTO = JsonConvert.DeserializeObject<PropertyDTO>(Convert.ToString(response.Result));
-        //        //convert DTO to Update DTO and return to the view, the model for update DTO and standard DTO maybe different!
-        //        return View(_mapper.Map<PropertyUpdateDTO>(propertyDTO));
-        //    }
+        // ~~~~****** PROPERTY NUMBER UPDATE ACTION - GET ******~~~~ //
+        public async Task<IActionResult> PropertyNumberUpdate(int propertyNo)
+        {
+            PropertyNumberUpdateVM propertyNumberVM = new();
+            var response = await _propertyNumberService.GetAsync<APIResponse>(propertyNo);
+            if (response != null && response.IsSuccess)
+            {
+                PropertyNumberDTO model = JsonConvert.DeserializeObject<PropertyNumberDTO>(Convert.ToString(response.Result));
+                propertyNumberVM.PropertyNumber = _mapper.Map<PropertyNumberUpdateDTO>(model);
+            }
 
-        //    return NotFound();
-        //}
+            response = await _propertyService.GetAllAsync<APIResponse>();
+            if (response != null && response.IsSuccess)
+            {
+                propertyNumberVM.PropertyList = JsonConvert.DeserializeObject<List<PropertyDTO>>
+                    (Convert.ToString(response.Result)).Select(i => new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.Id.ToString()
+                    });
+                return View(propertyNumberVM);
+            }
 
-        //// ~~~~****** PROPERTY UPDATE ACTION - POST ******~~~~ //
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> PropertyUpdate(PropertyUpdateDTO updateDTO)
-        //{
-        //    if(ModelState.IsValid)
-        //    {
-        //        var response = await _propertyService.UpdateAsync<APIResponse>(updateDTO);
-        //        if (response !=null && response.IsSuccess)
-        //        {
-        //            return RedirectToAction(nameof(PropertyIndex));
-        //        }
-        //    }
-        //    //if not valid, stay at PropertyUpdate view with all parameters the same!
-        //    return View(updateDTO);
-        //}
+            return NotFound();
+        }
+
+        // ~~~~****** PROPERTY NUMBER UPDATE ACTION - POST ******~~~~ //
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PropertyNumberUpdate(PropertyNumberUpdateVM model)
+        {
+            if (ModelState.IsValid)
+            {
+
+                var response = await _propertyNumberService.UpdateAsync<APIResponse>(model.PropertyNumber);
+                if (response != null && response.IsSuccess)
+                {
+                    return RedirectToAction(nameof(PropertyNumberIndex));
+                }
+                else
+                {
+                    if (response.ErrorMessages.Count > 0)
+                    {
+                        ModelState.AddModelError("ErrorMessages", response.ErrorMessages.FirstOrDefault());
+                    }
+                }
+            }
+
+            var resp = await _propertyService.GetAllAsync<APIResponse>();
+            if (resp != null && resp.IsSuccess)
+            {
+                model.PropertyList = JsonConvert.DeserializeObject<List<PropertyDTO>>
+                    (Convert.ToString(resp.Result)).Select(i => new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.Id.ToString()
+                    }); ;
+            }
+            return View(model);
+        }
 
         //// ~~~~****** PROPERTY DELETE ACTION - GET******~~~~ //
-        //public async Task<IActionResult> PropertyDelete(int propertyId)
-        //{
-        //    //get the info of the Property using the Id and display in the form, get ready for edit
-        //    var response = await _propertyService.GetAsync<APIResponse>(propertyId);
-        //    //remember from the Property Service, the GetAsync method take an ID as input argument
-        //    if (response != null && response.IsSuccess)
-        //    {
-        //        PropertyDTO propertyDTO = JsonConvert.DeserializeObject<PropertyDTO>(Convert.ToString(response.Result));
-        //        //return to the view with the DTO details!
-        //        return View(propertyDTO);
-        //    }
+        public async Task<IActionResult> PropertyNumberDelete(int propertyNo)
+        {
+            PropertyNumberDeleteVM propertyNumberVM = new();
+            var response = await _propertyNumberService.GetAsync<APIResponse>(propertyNo);
+            if (response != null && response.IsSuccess)
+            {
+                PropertyNumberDTO model = JsonConvert.DeserializeObject<PropertyNumberDTO>(Convert.ToString(response.Result));
+                propertyNumberVM.PropertyNumber = model;
+            }
 
-        //    return NotFound();
-        //}
+            response = await _propertyService.GetAllAsync<APIResponse>();
+            if (response != null && response.IsSuccess)
+            {
+                propertyNumberVM.PropertyList = JsonConvert.DeserializeObject<List<PropertyDTO>>
+                    (Convert.ToString(response.Result)).Select(i => new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.Id.ToString()
+                    });
+                return View(propertyNumberVM);
+            }
+            return NotFound();
+        }
 
-        //// ~~~~****** PROPERTY DELETE ACTION - POST ******~~~~ //
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> PropertyDelete(PropertyDTO propertyDTO)
-        //{ 
-        //    var response = await _propertyService.DeleteAsync<APIResponse>(propertyDTO.Id);
-        //    if (response != null && response.IsSuccess)
-        //    {
-        //        //if deletion is success, return to the list of properties
-        //        return RedirectToAction(nameof(PropertyIndex));
-        //    }
-        //    //if not valid, stay at Property Delete view with all parameters the same!
-        //    return View(propertyDTO);
-        //}
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PropertyNumberDelete(PropertyNumberDeleteVM model)
+        {
+
+            var response = await _propertyNumberService.DeleteAsync<APIResponse>(model.PropertyNumber.PropertyNo);
+            if (response != null && response.IsSuccess)
+            {
+                return RedirectToAction(nameof(PropertyNumberIndex));
+            }
+
+            return View(model);
+        }
     }
 }

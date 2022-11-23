@@ -1,11 +1,11 @@
-﻿@model HotProperty_Web.Models.VM.PropertyNumberCreateVM
+﻿@model HotProperty_Web.Models.VM.PropertyNumberUpdateVM
 
-<form asp-action="PropertyNumberCreate">
+<form asp-action="PropertyNumberUpdate">
     <br />
     <div class="container border p-3">
-        <h1 class="text-primary">Create Property Number</h1>
+        <h1 class="text-primary">Update Villa</h1>
         <hr />
-
+        <input hidden asp-for="PropertyNumber.PropertyNo" />
         <div class="row">
             <div asp-validation-summary="All" class="text-danger"></div>
 
@@ -13,7 +13,7 @@
                 <label asp-for="PropertyNumber.PropertyNo" class="control-label pt-2" style="font-size:20px;"></label>
             </div>
             <div class="col-10 pb-3">
-                <input asp-for="PropertyNumber.PropertyNo" class="form-control" />
+                <input asp-for="PropertyNumber.PropertyNo" disabled class="form-control" />
                 <span asp-validation-for="PropertyNumber.PropertyNo" class="text-danger"></span>
             </div>
 
@@ -22,7 +22,7 @@
             </div>
             <div class="col-10 pb-3">
                 <select asp-for="PropertyNumber.PropertyID" class="form-select" asp-items="@Model.PropertyList">
-                    <option disabled selected>--Select Property--</option>
+                    <option disabled selected>--Select Villa--</option>
                 </select>
                 <span asp-validation-for="PropertyNumber.PropertyID" class="text-danger"></span>
             </div>
@@ -33,12 +33,12 @@
                 <textarea asp-for="PropertyNumber.SpecialDetails" class="form-control" rows="5"></textarea>
                 <span asp-validation-for="PropertyNumber.SpecialDetails" class="text-danger"></span>
             </div>
-           
+
             <div class="col-5 offset-2">
                 <a asp-action="PropertyNumberIndex" asp-controller="PropertyNumber" class="btn-primary btn form-control ">Back to List</a>
             </div>
             <div class="col-5">
-                <input type="submit" value="Create" class="btn btn-success form-control" />
+                <input type="submit" value="Update" class="btn btn-success form-control" />
             </div>
         </div>
     </div>

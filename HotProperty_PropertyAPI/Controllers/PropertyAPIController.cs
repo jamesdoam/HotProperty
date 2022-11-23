@@ -104,7 +104,7 @@ namespace HotProperty_PropertyAPI.Controllers
                 if (await _dbProperty.GetAsync(u => u.Name.ToLower() == createDTO.Name.ToLower()) != null)
                 {
                     _logger.Log("LogError: Create Property with duplicated name", "error");
-                    ModelState.AddModelError("CustomError", "Property name already exists!");
+                    ModelState.AddModelError("ErrorMessages", "Property name already exists!");
                     return BadRequest(ModelState);
                 }
                 if (createDTO == null)
