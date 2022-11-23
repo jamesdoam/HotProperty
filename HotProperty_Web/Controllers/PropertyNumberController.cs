@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HotProperty_Web.Models;
 using HotProperty_Web.Models.Dto;
+using HotProperty_Web.Models.VM;
 using HotProperty_Web.Services.IServices;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -10,53 +11,62 @@ namespace HotProperty_Web.Controllers
     public class PropertyNumberController : Controller
     {
         private readonly IPropertyNumberService _propertyNumberService;
+        private readonly IPropertyService _propertyService;
         private readonly IMapper _mapper;
 
-        public PropertyNumberController(IPropertyNumberService propertyNumberService, IMapper mapper)
+        public PropertyNumberController(IPropertyNumberService propertyNumberService, IPropertyService propertyService, IMapper mapper)
         {
             _propertyNumberService = propertyNumberService;
+            _propertyService = propertyService;
             _mapper = mapper; 
         }
 
-        // ~~~~****** PROPERTY INDEX ACTION - GET ******~~~~ //
+        // ~~~~****** PROPERTY NUMBER INDEX ACTION - GET ******~~~~ //
         public async Task<IActionResult> PropertyNumberIndex()
         {
-            List<PropertyNumberDTO> list = new();
-            //use the GetAllAsync method from PropertyService and
-            //assign the response to the reponse variable, data type APIResponse. 
+            List<PropertyNumberDTO> list = new();            
             var response = await _propertyNumberService.GetAllAsync<APIResponse>();
             if (response != null && response.IsSuccess) //refer to BaseService.cs
-            {
-                //convert the response's result to a list of PropertyDTO and return to the View. 
+            {                
                 list = JsonConvert.DeserializeObject<List<PropertyNumberDTO>>(Convert.ToString(response.Result));
             }
 
             return View(list);
         }
 
-        //// ~~~~****** PROPERTY CREATE ACTION - GET ******~~~~ //
-        //public async Task<IActionResult> PropertyCreate()
-        //{
-        //    return View();
-        //}
-        //// ~~~~****** PROPERTY CREATE ACTION - POST ******~~~~ //
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> PropertyCreate(PropertyCreateDTO createDTO)
-        //{
-        //    //check if the createDTO is valid, 
-        //    if (ModelState.IsValid)
-        //    {
-        //        //if so, send a request for Creating a new property, this method takes the createDTO as the input argument as per PropertyService
-        //        var response = await _propertyService.CreateAsync<APIResponse>(createDTO);
-        //        if (response != null && response.IsSuccess)
-        //        {
-        //            //if the response is success, i.e. a property has been created, return to Property Index
-        //            return RedirectToAction(nameof(PropertyIndex));
-        //        }
-        //    }
-        //    return View(createDTO); //if not valid, stay at PropertyCreate view with all parameters the same!
-        //}
+        // ~~~~****** PROPERTY CREATE ACTION - GET ******~~~~ //
+        public async Task<IActionResult> PropertyNumberCreate()
+        {
+            PropertyNumberCreateVM propertyNumberVM = new();
+            var response = await _propertyService.GetAllAsync<APIResponse>();
+            if (response !=null && response.IsSuccess)
+            {
+                propertyNumberVM.PropertyList = JsonConvert.DeserializeObject<List<PropertyDTO>>(Convert.ToString(response.Result)).Select(i => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Text = i.Name,
+                    Value = i.Id.ToString()
+                });
+                ;
+            }
+            return View(propertyNumberVM);
+        }
+        // ~~~~****** PROPERTY NUMBER CREATE ACTION - POST ******~~~~ //
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PropertyNumberCreate(PropertyNumberCreateVM createDTO)
+        {
+            //check if the createDTO is valid, 
+            if (ModelState.IsValid)
+            {
+                var response = await _propertyNumberService.CreateAsync<APIResponse>(createDTO.PropertyNumber);
+                if (response != null && response.IsSuccess)
+                {
+                    //if the response is success, i.e. a property has been created, return to Property Number Index
+                    return RedirectToAction(nameof(PropertyNumberIndex));
+                }
+            }
+            return View(createDTO); //if not valid, stay at PropertyCreate view with all parameters the same!
+        }
 
         //// ~~~~****** PROPERTY UPDATE ACTION - GET******~~~~ //
         //public async Task<IActionResult> PropertyUpdate(int propertyId)
