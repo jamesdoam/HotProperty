@@ -14,6 +14,9 @@ builder.Services.AddScoped<IPropertyService, PropertyService>();
 builder.Services.AddHttpClient<IPropertyNumberService, PropertyNumberService>();
 builder.Services.AddScoped<IPropertyNumberService, PropertyNumberService>();
 
+builder.Services.AddHttpClient<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
