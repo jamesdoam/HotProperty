@@ -34,6 +34,8 @@ namespace HotProperty_PropertyAPI.Controllers
         // ********************** GET ALL PROPERTIES *************************//
         [HttpGet]
         [Authorize] //any role is authorized, but still need authorization. 
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         //instead of returning IEnumerable of Property, this time return APIResponse
         public async Task<ActionResult<APIResponse>> GetProperties()
@@ -61,6 +63,8 @@ namespace HotProperty_PropertyAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<APIResponse>> GetProperty(int id)
         {
             try
@@ -141,6 +145,8 @@ namespace HotProperty_PropertyAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<APIResponse>> DeleteProperty(int id)
         {
             try
