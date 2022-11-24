@@ -10,12 +10,12 @@ using System.Text;
 
 namespace HotProperty_PropertyAPI.Repository
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : Repository<LocalUser> , IUserRepository //remove  Repository<LocalUser> if don't need GetUsers() action
     {
         private readonly ApplicationDbContext _db;
         private string secretKey;
 
-        public UserRepository(ApplicationDbContext db, IConfiguration config)
+        public UserRepository(ApplicationDbContext db, IConfiguration config):base(db) //remove :base(db) if don't need GetUsers() action
         {
             _db = db;
             secretKey = config.GetValue<string>("ApiSettings:Secret");
@@ -28,6 +28,7 @@ namespace HotProperty_PropertyAPI.Repository
             if (user ==null)
             {
                 return true;
+
             }
             return false;
         }

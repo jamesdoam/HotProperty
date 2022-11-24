@@ -1,6 +1,7 @@
 ﻿using HotProperty_PropertyAPI.Models;
 using HotProperty_PropertyAPI.Models.Dto;
 using HotProperty_PropertyAPI.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Eventing.Reader;
@@ -8,8 +9,8 @@ using System.Net;
 
 namespace HotProperty_PropertyAPI.Controllers
 {
-    [Route("api/UserAuth")]
     [ApiController]
+    [Microsoft.AspNetCore.Mvc.Route("api/UserAuth")]
     public class UserController : Controller
     {
         private readonly IUserRepository _userRepository;
@@ -19,6 +20,28 @@ namespace HotProperty_PropertyAPI.Controllers
             _userRepository = userRepository;
             this._response = new();
         }
+
+        // ********************** GET ALL USERS *************************//
+        [HttpGet]        
+        [ProducesResponseType(StatusCodes.Status200OK)]        
+        public async Task<ActionResult<APIResponse>> GetUsers()
+        {
+            try
+            {
+                //get a list of all properties in the DB and then map them to DTOs and add to response object.
+                IEnumerable<LocalUser> userList = await _userRepository.GetAllAsync();
+                _response.Result = userList;
+                _response.StatusCode = HttpStatusCode.OK;                
+                return Ok(_response);
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessage = new List<string>() { ex.ToString() };
+            }
+            return _response;
+        }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)

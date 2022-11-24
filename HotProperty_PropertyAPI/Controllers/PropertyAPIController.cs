@@ -4,6 +4,7 @@ using HotProperty_PropertyAPI.Logging;
 using HotProperty_PropertyAPI.Models;
 using HotProperty_PropertyAPI.Models.Dto;
 using HotProperty_PropertyAPI.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,8 +31,9 @@ namespace HotProperty_PropertyAPI.Controllers
             this._response = new();
         }
 
-// ********************** GET ALL PROPERTIES *************************//
+        // ********************** GET ALL PROPERTIES *************************//
         [HttpGet]
+        [Authorize] //any role is authorized, but still need authorization. 
         [ProducesResponseType(StatusCodes.Status200OK)]
         //instead of returning IEnumerable of Property, this time return APIResponse
         public async Task<ActionResult<APIResponse>> GetProperties()
@@ -53,7 +55,8 @@ namespace HotProperty_PropertyAPI.Controllers
             return _response;
         }
 
-// ********************** GET 1 PROPERTY *************************//
+        // ********************** GET 1 PROPERTY *************************//
+        [Authorize(Roles = "admin")] //only role = admin is authorized
         [HttpGet("{id:int}", Name = "GetProperty")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -132,7 +135,8 @@ namespace HotProperty_PropertyAPI.Controllers
             return _response;   
         }
 
-// ********************** DELETE PROPERTY *************************//
+        // ********************** DELETE PROPERTY *************************//
+        [Authorize(Roles = "CUSTOM")] //only role = CUSTOM is authorized
         [HttpDelete("{id:int}", Name = "DeleteProperty")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
