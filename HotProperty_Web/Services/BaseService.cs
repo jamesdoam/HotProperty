@@ -2,6 +2,7 @@
 using HotProperty_Web.Models;
 using HotProperty_Web.Services.IServices;
 using Newtonsoft.Json;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace HotProperty_Web.Services
@@ -54,6 +55,11 @@ namespace HotProperty_Web.Services
                 }
                 //a dummy variable for the response message
                 HttpResponseMessage apiResponse = null;
+
+                if (!string.IsNullOrEmpty(apiRequest.Token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiRequest.Token);
+                }
 
                 //get the client to send the message and receive an apiResponse. 
                 apiResponse = await client.SendAsync(message);

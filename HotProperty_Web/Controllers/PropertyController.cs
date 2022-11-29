@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using HotProperty_Utility;
 using HotProperty_Web.Models;
 using HotProperty_Web.Models.Dto;
 using HotProperty_Web.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -24,7 +26,7 @@ namespace HotProperty_Web.Controllers
             List<PropertyDTO> list = new();
             //use the GetAllAsync method from PropertyService and
             //assign the response to the reponse variable, data type APIResponse. 
-            var response = await _propertyService.GetAllAsync<APIResponse>();
+            var response = await _propertyService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess) //refer to BaseService.cs
             {
                 //convert the response's result to a list of PropertyDTO and return to the View. 
@@ -35,11 +37,13 @@ namespace HotProperty_Web.Controllers
         }
 
         // ~~~~****** PROPERTY CREATE ACTION - GET ******~~~~ //
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> PropertyCreate()
         {
             return View();
         }
         // ~~~~****** PROPERTY CREATE ACTION - POST ******~~~~ //
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PropertyCreate(PropertyCreateDTO createDTO)
@@ -48,7 +52,7 @@ namespace HotProperty_Web.Controllers
             if (ModelState.IsValid)
             {
                 //if so, send a request for Creating a new property, this method takes the createDTO as the input argument as per PropertyService
-                var response = await _propertyService.CreateAsync<APIResponse>(createDTO);
+                var response = await _propertyService.CreateAsync<APIResponse>(createDTO, HttpContext.Session.GetString(SD.SessionToken));
                 if (response != null && response.IsSuccess)
                 {
                     TempData["success"] = "Villa created successfully";
@@ -61,10 +65,11 @@ namespace HotProperty_Web.Controllers
         }
 
         // ~~~~****** PROPERTY UPDATE ACTION - GET******~~~~ //
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> PropertyUpdate(int propertyId)
         {
             //get the info of the Property using the Id and display in the form, get ready for edit
-            var response = await _propertyService.GetAsync<APIResponse>(propertyId);
+            var response = await _propertyService.GetAsync<APIResponse>(propertyId, HttpContext.Session.GetString(SD.SessionToken));
             //remember from the Property Service, the GetAsync method take an ID as input argument
             if (response != null&& response.IsSuccess)
             {
@@ -77,13 +82,14 @@ namespace HotProperty_Web.Controllers
         }
 
         // ~~~~****** PROPERTY UPDATE ACTION - POST ******~~~~ //
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PropertyUpdate(PropertyUpdateDTO updateDTO)
         {
             if(ModelState.IsValid)
             {
-                var response = await _propertyService.UpdateAsync<APIResponse>(updateDTO);
+                var response = await _propertyService.UpdateAsync<APIResponse>(updateDTO, HttpContext.Session.GetString(SD.SessionToken));
                 if (response !=null && response.IsSuccess)
                 {
                     TempData["error"] = "Error encountered.";
@@ -96,10 +102,11 @@ namespace HotProperty_Web.Controllers
         }
 
         // ~~~~****** PROPERTY DELETE ACTION - GET******~~~~ //
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> PropertyDelete(int propertyId)
         {
             //get the info of the Property using the Id and display in the form, get ready for edit
-            var response = await _propertyService.GetAsync<APIResponse>(propertyId);
+            var response = await _propertyService.GetAsync<APIResponse>(propertyId, HttpContext.Session.GetString(SD.SessionToken));
             //remember from the Property Service, the GetAsync method take an ID as input argument
             if (response != null && response.IsSuccess)
             {
@@ -112,11 +119,12 @@ namespace HotProperty_Web.Controllers
         }
 
         // ~~~~****** PROPERTY DELETE ACTION - POST ******~~~~ //
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PropertyDelete(PropertyDTO propertyDTO)
         { 
-            var response = await _propertyService.DeleteAsync<APIResponse>(propertyDTO.Id);
+            var response = await _propertyService.DeleteAsync<APIResponse>(propertyDTO.Id, HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess)
             {
                 TempData["error"] = "Error encountered.";

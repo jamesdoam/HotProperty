@@ -33,7 +33,6 @@ namespace HotProperty_PropertyAPI.Controllers
 
         // ********************** GET ALL PROPERTIES *************************//
         [HttpGet]
-        [Authorize] //any role is authorized, but still need authorization. 
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -58,7 +57,6 @@ namespace HotProperty_PropertyAPI.Controllers
         }
 
         // ********************** GET 1 PROPERTY *************************//
-        [Authorize(Roles = "admin")] //only role = admin is authorized
         [HttpGet("{id:int}", Name = "GetProperty")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -98,7 +96,8 @@ namespace HotProperty_PropertyAPI.Controllers
             return _response;
         }
 
-// ********************** CREATE PROPERTY *************************//
+        // ********************** CREATE PROPERTY *************************//
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -140,7 +139,7 @@ namespace HotProperty_PropertyAPI.Controllers
         }
 
         // ********************** DELETE PROPERTY *************************//
-        [Authorize(Roles = "CUSTOM")] //only role = CUSTOM is authorized
+        [Authorize(Roles = "admin")] //only role = CUSTOM is authorized
         [HttpDelete("{id:int}", Name = "DeleteProperty")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -178,7 +177,8 @@ namespace HotProperty_PropertyAPI.Controllers
             return _response; 
         }
 
-// ********************** UPDATE PROPERTY *************************//
+        // ********************** UPDATE PROPERTY *************************//
+        [Authorize(Roles = "admin")]
         [HttpPut("{id:int}", Name = "UpdateProperty")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

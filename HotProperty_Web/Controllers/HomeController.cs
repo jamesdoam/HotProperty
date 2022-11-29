@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using HotProperty_Utility;
 using HotProperty_Web.Models;
 using HotProperty_Web.Models.Dto;
 using HotProperty_Web.Services.IServices;
@@ -22,7 +23,7 @@ namespace HotProperty_Web.Controllers
         public async Task<IActionResult> Index()
         {
             List<PropertyDTO> propertyList = new();
-            var response = await _propertyService.GetAllAsync<APIResponse>();
+            var response = await _propertyService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (response!=null&&response.IsSuccess)
             {
                 propertyList = JsonConvert.DeserializeObject<List<PropertyDTO>>(Convert.ToString(response.Result));

@@ -3,9 +3,11 @@ using HotProperty_Web.Models;
 using HotProperty_Web.Models.Dto;
 using HotProperty_Web.Services.IServices;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace HotProperty_Web.Controllers
 {
@@ -35,7 +37,14 @@ namespace HotProperty_Web.Controllers
             {
                 //if ok, convert the response.result to a response DTO
                 LoginResponseDTO responseDTO = JsonConvert.DeserializeObject<LoginResponseDTO>(Convert.ToString(response.Result));
-                
+
+                var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+                identity.AddClaim(new Claim(ClaimTypes.Name, responseDTO.User.UserName));
+                identity.AddClaim(new Claim(ClaimTypes.Role, responseDTO.User.Role));
+
+                var principal = new ClaimsPrincipal(identity);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
                 HttpContext.Session.SetString(SD.SessionToken, responseDTO.Token);
                 return RedirectToAction("Index", "Home"); //Home controller, index action
             }

@@ -5,10 +5,10 @@ namespace HotProperty_Web.Services.IServices
 {
     public interface IPropertyService
     {
-        Task<T> GetAllAsync<T>();
-        Task<T> GetAsync<T>(int id);
-        Task<T> CreateAsync<T>(PropertyCreateDTO dto);
-        Task<T> UpdateAsync<T>(PropertyUpdateDTO dto);
-        Task<T> DeleteAsync<T>(int id);
+        Task<T> GetAllAsync<T>(string token);
+        Task<T> GetAsync<T>(int id, string token);
+        Task<T> CreateAsync<T>(PropertyCreateDTO dto, string token);
+        Task<T> UpdateAsync<T>(PropertyUpdateDTO dto, string token);
+        Task<T> DeleteAsync<T>(int id, string token);
     }
 }

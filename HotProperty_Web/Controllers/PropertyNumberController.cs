@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
+using HotProperty_Utility;
 using HotProperty_Web.Models;
 using HotProperty_Web.Models.Dto;
 using HotProperty_Web.Models.VM;
 using HotProperty_Web.Services;
 using HotProperty_Web.Services.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System.Data;
 
 namespace HotProperty_Web.Controllers
 {
@@ -27,7 +30,7 @@ namespace HotProperty_Web.Controllers
         public async Task<IActionResult> PropertyNumberIndex()
         {
             List<PropertyNumberDTO> list = new();            
-            var response = await _propertyNumberService.GetAllAsync<APIResponse>();
+            var response = await _propertyNumberService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess) //refer to BaseService.cs
             {                
                 list = JsonConvert.DeserializeObject<List<PropertyNumberDTO>>(Convert.ToString(response.Result));
@@ -37,10 +40,11 @@ namespace HotProperty_Web.Controllers
         }
 
         // ~~~~****** PROPERTY CREATE ACTION - GET ******~~~~ //
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> PropertyNumberCreate()
         {
             PropertyNumberCreateVM propertyNumberVM = new();
-            var response = await _propertyService.GetAllAsync<APIResponse>();
+            var response = await _propertyService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (response !=null && response.IsSuccess)
             {
                 propertyNumberVM.PropertyList = JsonConvert.DeserializeObject<List<PropertyDTO>>(Convert.ToString(response.Result)).Select(i => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
@@ -53,6 +57,7 @@ namespace HotProperty_Web.Controllers
             return View(propertyNumberVM);
         }
         // ~~~~****** PROPERTY NUMBER CREATE ACTION - POST ******~~~~ //
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PropertyNumberCreate(PropertyNumberCreateVM createDTO)
@@ -60,7 +65,7 @@ namespace HotProperty_Web.Controllers
             //check if the createDTO is valid, 
             if (ModelState.IsValid)
             {
-                var response = await _propertyNumberService.CreateAsync<APIResponse>(createDTO.PropertyNumber);
+                var response = await _propertyNumberService.CreateAsync<APIResponse>(createDTO.PropertyNumber, HttpContext.Session.GetString(SD.SessionToken));
                 if (response != null && response.IsSuccess)
                 {
                     //if the response is success, i.e. a property has been created, return to Property Number Index
@@ -75,7 +80,7 @@ namespace HotProperty_Web.Controllers
                 }
             }
 
-            var resp = await _propertyService.GetAllAsync<APIResponse>();
+            var resp = await _propertyService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (resp !=null &resp.IsSuccess)
             {
                 createDTO.PropertyList = JsonConvert.DeserializeObject<List<PropertyDTO>>(Convert.ToString(resp.Result)).Select(i => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
@@ -88,17 +93,18 @@ namespace HotProperty_Web.Controllers
         }
 
         // ~~~~****** PROPERTY NUMBER UPDATE ACTION - GET ******~~~~ //
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> PropertyNumberUpdate(int propertyNo)
         {
             PropertyNumberUpdateVM propertyNumberVM = new();
-            var response = await _propertyNumberService.GetAsync<APIResponse>(propertyNo);
+            var response = await _propertyNumberService.GetAsync<APIResponse>(propertyNo, HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess)
             {
                 PropertyNumberDTO model = JsonConvert.DeserializeObject<PropertyNumberDTO>(Convert.ToString(response.Result));
                 propertyNumberVM.PropertyNumber = _mapper.Map<PropertyNumberUpdateDTO>(model);
             }
 
-            response = await _propertyService.GetAllAsync<APIResponse>();
+            response = await _propertyService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess)
             {
                 propertyNumberVM.PropertyList = JsonConvert.DeserializeObject<List<PropertyDTO>>
@@ -114,6 +120,7 @@ namespace HotProperty_Web.Controllers
         }
 
         // ~~~~****** PROPERTY NUMBER UPDATE ACTION - POST ******~~~~ //
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PropertyNumberUpdate(PropertyNumberUpdateVM model)
@@ -121,7 +128,7 @@ namespace HotProperty_Web.Controllers
             if (ModelState.IsValid)
             {
 
-                var response = await _propertyNumberService.UpdateAsync<APIResponse>(model.PropertyNumber);
+                var response = await _propertyNumberService.UpdateAsync<APIResponse>(model.PropertyNumber, HttpContext.Session.GetString(SD.SessionToken));
                 if (response != null && response.IsSuccess)
                 {
                     return RedirectToAction(nameof(PropertyNumberIndex));
@@ -135,7 +142,7 @@ namespace HotProperty_Web.Controllers
                 }
             }
 
-            var resp = await _propertyService.GetAllAsync<APIResponse>();
+            var resp = await _propertyService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (resp != null && resp.IsSuccess)
             {
                 model.PropertyList = JsonConvert.DeserializeObject<List<PropertyDTO>>
@@ -149,17 +156,18 @@ namespace HotProperty_Web.Controllers
         }
 
         //// ~~~~****** PROPERTY DELETE ACTION - GET******~~~~ //
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> PropertyNumberDelete(int propertyNo)
         {
             PropertyNumberDeleteVM propertyNumberVM = new();
-            var response = await _propertyNumberService.GetAsync<APIResponse>(propertyNo);
+            var response = await _propertyNumberService.GetAsync<APIResponse>(propertyNo, HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess)
             {
                 PropertyNumberDTO model = JsonConvert.DeserializeObject<PropertyNumberDTO>(Convert.ToString(response.Result));
                 propertyNumberVM.PropertyNumber = model;
             }
 
-            response = await _propertyService.GetAllAsync<APIResponse>();
+            response = await _propertyService.GetAllAsync<APIResponse>(HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess)
             {
                 propertyNumberVM.PropertyList = JsonConvert.DeserializeObject<List<PropertyDTO>>
@@ -173,13 +181,14 @@ namespace HotProperty_Web.Controllers
             return NotFound();
         }
 
-
+        //// ~~~~****** PROPERTY DELETE ACTION - POST ******~~~~ //        
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PropertyNumberDelete(PropertyNumberDeleteVM model)
         {
 
-            var response = await _propertyNumberService.DeleteAsync<APIResponse>(model.PropertyNumber.PropertyNo);
+            var response = await _propertyNumberService.DeleteAsync<APIResponse>(model.PropertyNumber.PropertyNo, HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess)
             {
                 return RedirectToAction(nameof(PropertyNumberIndex));

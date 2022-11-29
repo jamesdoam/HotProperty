@@ -4,9 +4,11 @@ using HotProperty_PropertyAPI.Logging;
 using HotProperty_PropertyAPI.Models;
 using HotProperty_PropertyAPI.Models.Dto;
 using HotProperty_PropertyAPI.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Net;
 using System.Runtime.CompilerServices;
 
@@ -93,7 +95,8 @@ namespace HotProperty_PropertyAPI.Controllers
             return _response;
         }
 
-// ********************** CREATE PROPERTY NUMBER*************************//
+        // ********************** CREATE PROPERTY NUMBER*************************//
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -141,7 +144,8 @@ namespace HotProperty_PropertyAPI.Controllers
             return _response;   
         }
 
-// ********************** DELETE PROPERTY *************************//
+        // ********************** DELETE PROPERTY *************************//
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id:int}", Name = "DeletePropertyNumber")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -177,7 +181,8 @@ namespace HotProperty_PropertyAPI.Controllers
             return _response; 
         }
 
-// ********************** UPDATE PROPERTY NUMBER *************************//
+        // ********************** UPDATE PROPERTY NUMBER *************************//
+        [Authorize(Roles = "admin")]
         [HttpPut("{id:int}", Name = "UpdatePropertyNumber")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

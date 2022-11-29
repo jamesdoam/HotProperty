@@ -16,52 +16,57 @@ namespace HotProperty_Web.Services
             propertyUrl = configuration.GetValue<string>("ServiceUrls:PropertyAPI");
             //this is the localhost link in the appsetings.json
         }
-        public Task<T> CreateAsync<T>(PropertyCreateDTO dto)
+        public Task<T> CreateAsync<T>(PropertyCreateDTO dto, string token)
         {
             return SendAsync<T>(new APIRequest()
             {
                 ApiType = SD.ApiType.POST,
                 Data = dto,
-                Url = propertyUrl + "/api/PropertyAPI"
+                Url = propertyUrl + "/api/PropertyAPI",
+                Token = token
             });            
         }
 
-        public Task<T> DeleteAsync<T>(int id)
+        public Task<T> DeleteAsync<T>(int id, string token)
         {
             return SendAsync<T>(new APIRequest()
             {
                 ApiType = SD.ApiType.DELETE,
-                Url = propertyUrl + "/api/PropertyAPI/" + id
+                Url = propertyUrl + "/api/PropertyAPI/" + id,
+                Token = token
             });
         }
 
-        public Task<T> GetAllAsync<T>()
+        public Task<T> GetAllAsync<T>(string token)
         {
             APIRequest request = new APIRequest()
             {
                 ApiType = SD.ApiType.GET,
-                Url = propertyUrl + "/api/PropertyAPI"
+                Url = propertyUrl + "/api/PropertyAPI",
+                Token = token
             };
 
             return SendAsync<T>(request);            
         }
 
-        public Task<T> GetAsync<T>(int id)
+        public Task<T> GetAsync<T>(int id, string token)
         {
             return SendAsync<T>(new APIRequest()
             {
                 ApiType = SD.ApiType.GET,
-                Url = propertyUrl + "/api/PropertyAPI/" + id
+                Url = propertyUrl + "/api/PropertyAPI/" + id,
+                Token = token
             });
         }
 
-        public Task<T> UpdateAsync<T>(PropertyUpdateDTO dto)
+        public Task<T> UpdateAsync<T>(PropertyUpdateDTO dto, string token)
         {
             return SendAsync<T>(new APIRequest()
             {
                 ApiType = SD.ApiType.PUT,
                 Data = dto,
-                Url = propertyUrl + "/api/PropertyAPI/" + dto.Id
+                Url = propertyUrl + "/api/PropertyAPI/" + dto.Id,
+                Token = token
             });
         }
     }
