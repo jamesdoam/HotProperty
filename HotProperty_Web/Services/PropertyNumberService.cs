@@ -22,7 +22,7 @@ namespace HotProperty_Web.Services
             {
                 ApiType = SD.ApiType.POST,
                 Data = dto,
-                Url = propertyUrl + "/api/PropertyNumberAPI",
+                Url = propertyUrl + "/api/v1/PropertyNumberAPI",
                 Token = token
             });            
         }
@@ -32,7 +32,7 @@ namespace HotProperty_Web.Services
             return SendAsync<T>(new APIRequest()
             {
                 ApiType = SD.ApiType.DELETE,
-                Url = propertyUrl + "/api/PropertyNumberAPI/" + id,
+                Url = propertyUrl + "/api/v1/PropertyNumberAPI/" + id,
                 Token = token
             });
         }
@@ -42,7 +42,7 @@ namespace HotProperty_Web.Services
             APIRequest request = new APIRequest()
             {
                 ApiType = SD.ApiType.GET,
-                Url = propertyUrl + "/api/PropertyNumberAPI",
+                Url = propertyUrl + "/api/v1/PropertyNumberAPI",
                 Token = token
             };
 
@@ -54,7 +54,7 @@ namespace HotProperty_Web.Services
             return SendAsync<T>(new APIRequest()
             {
                 ApiType = SD.ApiType.GET,
-                Url = propertyUrl + "/api/PropertyNumberAPI/" + id,
+                Url = propertyUrl + "/api/v1/PropertyNumberAPI/" + id,
                 Token = token
             });
         }
@@ -65,7 +65,7 @@ namespace HotProperty_Web.Services
             {
                 ApiType = SD.ApiType.PUT,
                 Data = dto,
-                Url = propertyUrl + "/api/PropertyNumberAPI/" + dto.PropertyNo,
+                Url = propertyUrl + "/api/v1/PropertyNumberAPI/" + dto.PropertyNo,
                 Token = token
             });
         }

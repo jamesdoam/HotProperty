@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Eventing.Reader;
 using System.Net;
 
-namespace HotProperty_PropertyAPI.Controllers
+namespace HotProperty_PropertyAPI.Controllers.v1
 {
     [ApiController]
-    [Microsoft.AspNetCore.Mvc.Route("api/UserAuth")]
+    [Microsoft.AspNetCore.Mvc.Route("api/v{version:apiVersion}/UsersAuth")]
+    [ApiVersion("1.0")]
     public class UserController : Controller
     {
         private readonly IUserRepository _userRepository;
@@ -18,12 +19,12 @@ namespace HotProperty_PropertyAPI.Controllers
         public UserController(IUserRepository userRepository)
         {
             _userRepository = userRepository;
-            this._response = new();
+            _response = new();
         }
 
         // ********************** GET ALL USERS *************************//
-        [HttpGet]        
-        [ProducesResponseType(StatusCodes.Status200OK)]        
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<APIResponse>> GetUsers()
         {
             try
@@ -31,7 +32,7 @@ namespace HotProperty_PropertyAPI.Controllers
                 //get a list of all properties in the DB and then map them to DTOs and add to response object.
                 IEnumerable<LocalUser> userList = await _userRepository.GetAllAsync();
                 _response.Result = userList;
-                _response.StatusCode = HttpStatusCode.OK;                
+                _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
             }
             catch (Exception ex)
@@ -48,7 +49,7 @@ namespace HotProperty_PropertyAPI.Controllers
         {
             var loginResponse = await _userRepository.Login(loginRequestDTO);
             //check if User is null or token is null or empty
-            if(loginResponse.User == null || string.IsNullOrEmpty(loginResponse.Token))
+            if (loginResponse.User == null || string.IsNullOrEmpty(loginResponse.Token))
             {
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
@@ -81,7 +82,7 @@ namespace HotProperty_PropertyAPI.Controllers
             var user = await _userRepository.Register(registrationRequestDTO);
             if (user == null)
             {
-                _response.StatusCode=HttpStatusCode.BadRequest;
+                _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.IsSuccess = false;
                 _response.ErrorMessage.Add("Something is wrong while register new user");
                 return BadRequest(_response);

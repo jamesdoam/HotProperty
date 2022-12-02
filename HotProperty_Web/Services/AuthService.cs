@@ -21,7 +21,7 @@ namespace HotProperty_Web.Services
             {
                 ApiType = SD.ApiType.POST,
                 Data = loginDTO,
-                Url = propertyUrl + "/api/UserAuth/login"
+                Url = propertyUrl + "/api/v1/UserAuth/login"
             };
             return SendAsync<T>(request);
         }
@@ -32,7 +32,7 @@ namespace HotProperty_Web.Services
             {
                 ApiType = SD.ApiType.POST,
                 Data = registerDTO,
-                Url = propertyUrl + "/api/UserAuth/register"
+                Url = propertyUrl + "/api/v1/UserAuth/register"
             };
             return SendAsync<T>(request);
         }

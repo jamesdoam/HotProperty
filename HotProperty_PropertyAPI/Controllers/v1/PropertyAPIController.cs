@@ -11,10 +11,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Runtime.CompilerServices;
 
-namespace HotProperty_PropertyAPI.Controllers
+namespace HotProperty_PropertyAPI.Controllers.v1
 {
     [ApiController]
-    [Route("api/PropertyAPI")]
+    [Route("api/v{version:apiVersion}/PropertyAPI")]
+    [ApiVersion("1.0")]
     //[Route("api/[controller]") this will use the controller name in the route
     public class PropertyAPIController : ControllerBase
     {
@@ -28,7 +29,7 @@ namespace HotProperty_PropertyAPI.Controllers
             _logger = logger;
             _dbProperty = dbProperty;
             _mapper = mapper;
-            this._response = new();
+            _response = new();
         }
 
         // ********************** GET ALL PROPERTIES *************************//
@@ -75,7 +76,7 @@ namespace HotProperty_PropertyAPI.Controllers
                 }
 
                 var property = await _dbProperty.GetAsync(u => u.Id == id);
-                
+
                 if (property == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
@@ -128,14 +129,14 @@ namespace HotProperty_PropertyAPI.Controllers
                 _logger.Log("LogInfo: A New Property has been succesfully created", "success");
                 return CreatedAtRoute("GetProperty", new { id = propertyObj.Id }, _response);
             }
-            
+
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
                 _response.ErrorMessage = new List<string>() { ex.ToString() };
             }
 
-            return _response;   
+            return _response;
         }
 
         // ********************** DELETE PROPERTY *************************//
@@ -171,10 +172,10 @@ namespace HotProperty_PropertyAPI.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessage = new List<string> { ex.ToString() };   
+                _response.ErrorMessage = new List<string> { ex.ToString() };
             }
 
-            return _response; 
+            return _response;
         }
 
         // ********************** UPDATE PROPERTY *************************//
@@ -182,7 +183,7 @@ namespace HotProperty_PropertyAPI.Controllers
         [HttpPut("{id:int}", Name = "UpdateProperty")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<ActionResult<APIResponse>> UpdateProperty(int id, [FromBody]PropertyUpdateDTO updateDTO)
+        public async Task<ActionResult<APIResponse>> UpdateProperty(int id, [FromBody] PropertyUpdateDTO updateDTO)
         {
             try
             {
@@ -200,28 +201,28 @@ namespace HotProperty_PropertyAPI.Controllers
                 return Ok(_response);
 
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 _response.IsSuccess = false;
                 _response.ErrorMessage = new List<string> { ex.ToString() };
-            }            
-                   
+            }
+
             return _response;
         }
 
-// ********************** UPDATE PARTIAL PROPERTY *************************//
+        // ********************** UPDATE PARTIAL PROPERTY *************************//
         [HttpPatch("{id:int}", Name = "UpdatePartialProperty")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> UpdatePartialProperty(int id, JsonPatchDocument<PropertyUpdateDTO> patchDTO)
         {
-            if(patchDTO == null || id == 0)
+            if (patchDTO == null || id == 0)
             {
                 return BadRequest();
             }
             //retrive the property from database from the id provided
             //if not null, create a new propertyDTO from the real object
-            var propertyObj = await _dbProperty.GetAsync(u => u.Id == id,tracked:false);
+            var propertyObj = await _dbProperty.GetAsync(u => u.Id == id, tracked: false);
 
             if (propertyObj == null)
             {
@@ -240,7 +241,7 @@ namespace HotProperty_PropertyAPI.Controllers
             }
 
             //if valid, map the patched DTO back to a new propertyObject, then update the database and finally save!
-            Property newPropertyObj = _mapper.Map<Property>(propertyDTO);            
+            Property newPropertyObj = _mapper.Map<Property>(propertyDTO);
             await _dbProperty.UpdateAsync(newPropertyObj);
             return NoContent();
         }
