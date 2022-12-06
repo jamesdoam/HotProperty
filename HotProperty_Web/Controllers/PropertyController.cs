@@ -92,7 +92,7 @@ namespace HotProperty_Web.Controllers
                 var response = await _propertyService.UpdateAsync<APIResponse>(updateDTO, HttpContext.Session.GetString(SD.SessionToken));
                 if (response !=null && response.IsSuccess)
                 {
-                    TempData["error"] = "Error encountered.";
+                    TempData["success"] = "Property Update Successfully.";
                     return RedirectToAction(nameof(PropertyIndex));
                 }
             }
@@ -127,11 +127,11 @@ namespace HotProperty_Web.Controllers
             var response = await _propertyService.DeleteAsync<APIResponse>(propertyDTO.Id, HttpContext.Session.GetString(SD.SessionToken));
             if (response != null && response.IsSuccess)
             {
-                TempData["error"] = "Error encountered.";
+                TempData["success"] = "Property Successfully Deleted.";
                 //if deletion is success, return to the list of properties
                 return RedirectToAction(nameof(PropertyIndex));
             }
-            TempData["error"] = "Error encountered.";
+            TempData["error"] = "Something went wrong while deleting";
             //if not valid, stay at Property Delete view with all parameters the same!
             return View(propertyDTO);
         }
